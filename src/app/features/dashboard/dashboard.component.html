@@ -1,0 +1,87 @@
+<div class="dashboard">
+  <div class="page-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p class="subtitle">Overview of today’s business performance</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="state">Loading dashboard...</div>
+  <div *ngIf="error" class="state error">{{ error }}</div>
+
+  <div class="stats-grid" *ngIf="stats && !loading">
+    <!-- Today's Sales -->
+    <div class="stat-card">
+      <div class="card-top">
+        <span class="label">Today’s Sales</span>
+        <!-- <span class="badge primary">Sales</span> -->
+      </div>
+      <div class="value">KES {{ stats.todaySales | number:'1.0-0' }}</div>
+    </div>
+
+    <!-- Today's Collection -->
+    <div class="stat-card">
+      <div class="card-top">
+        <span class="label">Today’s Collection</span>
+        <!-- <span class="badge success">In</span> -->
+      </div>
+      <div class="value">KES {{ stats.todayCollection | number:'1.0-0' }}</div>
+    </div>
+
+    <!-- Customer Dues -->
+    <div class="stat-card">
+      <div class="card-top">
+        <span class="label">Customer Dues</span>
+        <!-- <span class="badge warning">Due</span> -->
+      </div>
+      <div class="value">KES {{ stats.customerDues | number:'1.0-0' }}</div>
+    </div>
+
+    <!-- Supplier Dues -->
+    <div class="stat-card">
+      <div class="card-top">
+        <span class="label">Supplier Dues</span>
+        <!-- <span class="badge danger">Payable</span> -->
+      </div>
+      <div class="value">KES {{ stats.supplierDues | number:'1.0-0' }}</div>
+    </div>
+
+    <!-- Stock Value -->
+    <div class="stat-card">
+      <div class="card-top">
+        <span class="label">Stock Value (Selling)</span>
+        <!-- <span class="badge neutral">Inventory</span> -->
+      </div>
+      <div class="value">KES {{ stats.stockValue | number:'1.0-0' }}</div>
+    </div>
+
+    <!-- Stock Cost -->
+    <div class="stat-card">
+      <div class="card-top">
+        <span class="label">Stock Cost Value</span>
+        <!-- <span class="badge neutral">Cost</span> -->
+      </div>
+      <div class="value">KES {{ stats.stockCostValue | number:'1.0-0' }}</div>
+    </div>
+
+    <!-- Monthly Expenses -->
+    <div class="stat-card">
+      <div class="card-top">
+        <span class="label">Monthly Expenses</span>
+        <!-- <span class="badge neutral">Expense</span> -->
+      </div>
+      <div class="value">KES {{ stats.monthlyExpenses | number:'1.0-0' }}</div>
+    </div>
+
+    <!-- Low Stock -->
+    <div class="stat-card" [class.alert]="stats.lowStockCount > 0">
+      <div class="card-top">
+        <span class="label">Low Stock Items</span>
+        <!-- <span class="badge" [class.warning]="stats.lowStockCount > 0" [class.neutral]="stats.lowStockCount === 0">
+          {{ stats.lowStockCount > 0 ? 'Attention' : 'OK' }}
+        </span> -->
+      </div>
+      <div class="value">{{ stats.lowStockCount }}</div>
+    </div>
+  </div>
+</div>
