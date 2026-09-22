@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { Customer } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -11,23 +12,23 @@ export class CustomerService {
 
   constructor(private http: HttpClient) {}
 
-  getCustomers(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getCustomers(): Observable<Customer[]> {
+    return this.http.get<Customer[]>(this.apiUrl);
   }
 
-  getCustomer(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  getCustomer(id: string): Observable<Customer> {
+    return this.http.get<Customer>(`${this.apiUrl}/${id}`);
   }
 
-  createCustomer(data: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, data);
+  createCustomer(data: Partial<Customer>): Observable<Customer> {
+    return this.http.post<Customer>(this.apiUrl, data);
   }
 
-  updateCustomer(id: string, data: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, data);
+  updateCustomer(id: string, data: Partial<Customer>): Observable<Customer> {
+    return this.http.put<Customer>(`${this.apiUrl}/${id}`, data);
   }
 
-  deleteCustomer(id: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  deleteCustomer(id: string): Observable<unknown> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }
