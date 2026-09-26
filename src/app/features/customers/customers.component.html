@@ -1,1 +1,228 @@
-<p>customers works!</p>
+<div class="customers-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Customers</h1>
+      <p>Manage customers, credit limits, and outstanding balances.</p>
+    </div>
+
+    <button class="primary-button" type="button" (click)="openCreateForm()">
+      + Add Customer
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <input
+      type="text"
+      placeholder="Search by name, phone, or email..."
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="onSearch()"
+    />
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading && customers.length === 0" class="loading">
+    Loading customers...
+  </div>
+
+  <div
+    *ngIf="!loading && customers.length === 0 && !errorMessage"
+    class="empty-state"
+  >
+    <h2>No customers yet</h2>
+    <p>Add your first customer to get started.</p>
+
+    <button
+      class="primary-button"
+      type="button"
+      (click)="openCreateForm()"
+    >
+      Add Customer
+    </button>
+  </div>
+
+  <div
+    *ngIf="customers.length > 0"
+    class="table-card"
+  >
+    <table>
+      <thead>
+        <tr>
+          <th>Customer</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Credit Limit</th>
+          <th>Current Due</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let customer of filteredCustomers; trackBy: trackByCustomerId"
+        >
+          <td>
+            <strong>{{ customer.name }}</strong>
+          </td>
+
+          <td>
+            {{ customer.phone || '—' }}
+          </td>
+
+          <td>
+            {{ customer.email || '—' }}
+          </td>
+
+          <td>
+            KES {{ customer.creditLimit | number:'1.2-2' }}
+          </td>
+
+          <td
+            [class.due]="customer.currentDue > 0"
+            [class.paid]="customer.currentDue <= 0"
+          >
+            KES {{ customer.currentDue | number:'1.2-2' }}
+          </td>
+
+          <td>
+            <span
+              class="status"
+              [class.inactive]="!customer.isActive"
+            >
+              {{ customer.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+
+          <td class="actions">
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="openEditForm(customer)"
+            >
+              Edit
+            </button>
+
+            <button
+              type="button"
+              class="danger-button"
+              (click)="deleteCustomer(customer)"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredCustomers.length === 0">
+          <td colspan="7" class="no-results">
+            No customers match "{{ searchTerm }}".
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Customer form -->
+  <div *ngIf="showForm" class="form-overlay">
+
+    <div class="form-card">
+
+      <div class="form-header">
+        <div>
+          <h2>
+            {{ editingCustomer ? 'Edit Customer' : 'Add Customer' }}
+          </h2>
+
+          <p>
+            {{
+              editingCustomer
+                ? 'Update customer information.'
+                : 'Create a new customer record.'
+            }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeForm()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="form-body">
+
+        <label>
+          Customer Name
+          <input
+            type="text"
+            [(ngModel)]="form.name"
+            placeholder="Enter customer name"
+          />
+        </label>
+
+        <label>
+          Phone
+          <input
+            type="text"
+            [(ngModel)]="form.phone"
+            placeholder="e.g. 0712345678"
+          />
+        </label>
+
+        <label>
+          Email
+          <input
+            type="email"
+            [(ngModel)]="form.email"
+            placeholder="customer@example.com"
+          />
+        </label>
+
+        <label>
+          Address
+          <input
+            type="text"
+            [(ngModel)]="form.address"
+            placeholder="Customer address"
+          />
+        </label>
+
+        <label>
+          Credit Limit
+          <input
+            type="number"
+            min="0"
+            [(ngModel)]="form.creditLimit"
+          />
+        </label>
+
+      </div>
+
+      <div class="form-footer">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeForm()"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="primary-button"
+          [disabled]="!form.name.trim() || loading"
+          (click)="saveCustomer()"
+        >
+          {{ loading ? 'Saving...' : 'Save Customer' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
@@ -39,11 +44,7 @@ export class LoginComponent {
     const password = this.loginForm.value.password;
 
     this.authService.login(email, password).subscribe({
-      next: (res) => {
-        // Force save just in case
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user));
-
+      next: () => {
         this.loading = false;
         this.router.navigateByUrl('/dashboard');
       },
