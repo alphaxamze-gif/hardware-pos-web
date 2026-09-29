@@ -1,5 +1,6 @@
+/// <reference types="jasmine" />
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { provideHttpClient } from '@angular/common/http';
 import { CustomersComponent } from './customers.component';
 
 describe('CustomersComponent', () => {
@@ -8,9 +9,11 @@ describe('CustomersComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CustomersComponent]
-    })
-    .compileComponents();
+      imports: [CustomersComponent],
+      providers: [
+        provideHttpClient()
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CustomersComponent);
     component = fixture.componentInstance;
