@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthUser, LoginResponse } from '../models';
+import { AuthUser, LoginResponse, UserRole } from '../models';
+import { defaultHomeForRole, isValidRole } from '../auth/role-permissions';
 
 @Injectable({
   providedIn: 'root'
@@ -15,9 +16,20 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    if (token && user) {
-      this.currentUserSubject.next(JSON.parse(user) as AuthUser);
+    const userRaw = localStorage.getItem('user');
+    if (token && userRaw) {
+      try {
+        const parsed = JSON.parse(userRaw) as AuthUser;
+        if (isValidRole(parsed?.role)) {
+          this.currentUserSubject.next(parsed);
+        } else {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      } catch {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
   }
 
@@ -48,5 +60,19 @@ export class AuthService {
 
   getUser(): AuthUser | null {
     return this.currentUserSubject.value;
+  }
+
+  getRole(): UserRole | null {
+    const role = this.currentUserSubject.value?.role;
+    return isValidRole(role) ? role : null;
+  }
+
+  hasAnyRole(roles: UserRole[]): boolean {
+    const role = this.getRole();
+    return role !== null && roles.includes(role);
+  }
+
+  getDefaultHome(): string {
+    return defaultHomeForRole(this.getRole());
   }
 }
