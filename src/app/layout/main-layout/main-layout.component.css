@@ -17,7 +17,7 @@
   position: relative;
 }
 
-/* ---------- SIDEBAR (always deep construction blue) ---------- */
+/* ---------- SIDEBAR ---------- */
 .sidebar {
   --sb-bg: #1e3a5f;
   --sb-border: #16304f;
@@ -38,7 +38,7 @@
   flex-direction: column;
   flex-shrink: 0;
   border-right: 1px solid var(--sb-border);
-  transition: margin-left 0.22s ease, min-width 0.22s ease, width 0.22s ease;
+  transition: width 0.22s ease, min-width 0.22s ease, max-width 0.22s ease;
   z-index: 60;
   overflow: hidden;
 }
@@ -48,20 +48,17 @@ body.dark-theme .sidebar {
   --sb-border: #1e293b;
 }
 
-/* Desktop collapse: slide away without breaking flex */
 .sidebar.is-collapsed {
   width: 0;
   min-width: 0;
   max-width: 0;
   border-right: none;
-  margin-left: 0;
 }
 
 .sidebar-header {
   padding: 18px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
-  background: inherit;
 }
 
 .brand {
@@ -79,6 +76,17 @@ body.dark-theme .sidebar {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Brand wrench icon — fixed size */
+.logo svg {
+  width: 22px !important;
+  height: 22px !important;
+  max-width: 22px !important;
+  max-height: 22px !important;
+  display: block;
+  flex-shrink: 0;
 }
 
 .brand-text .name {
@@ -119,6 +127,7 @@ body.dark-theme .sidebar {
 
 .nav-item {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
@@ -128,6 +137,7 @@ body.dark-theme .sidebar {
   font-size: 14.5px;
   border-left: 3px solid transparent;
   white-space: nowrap;
+  line-height: 1.3;
   transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
 
@@ -143,19 +153,32 @@ body.dark-theme .sidebar {
   font-weight: 600;
 }
 
+/* CRITICAL: lock every nav SVG to 20×20 — prevents giant icons */
+.nav-item svg,
 .nav-item .icon {
-  width: 20px;
-  height: 20px;
-  min-width: 20px;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  max-width: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+  flex-shrink: 0;
+  display: block;
   stroke: currentColor;
   fill: none;
+}
+
+.nav-item span {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar-footer {
   flex-shrink: 0;
   padding: 14px 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: inherit;
 }
 
 .user-block {
@@ -177,6 +200,12 @@ body.dark-theme .sidebar {
   justify-content: center;
   font-size: 13px;
   font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-meta {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .user-name {
@@ -186,7 +215,6 @@ body.dark-theme .sidebar {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px;
 }
 
 .user-role {
@@ -214,12 +242,11 @@ body.dark-theme .sidebar {
   color: #fca5a5;
 }
 
-/* Overlay (mobile only) */
 .sidebar-backdrop {
   display: none;
 }
 
-/* ---------- MAIN COLUMN ---------- */
+/* ---------- MAIN ---------- */
 .main {
   flex: 1 1 auto;
   min-width: 0;
@@ -269,6 +296,16 @@ body.dark-theme .topbar {
   color: #94a3b8;
   cursor: pointer;
   flex-shrink: 0;
+  padding: 0;
+}
+
+.icon-btn svg {
+  width: 20px !important;
+  height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
+  display: block;
+  flex-shrink: 0;
 }
 
 .icon-btn:hover {
@@ -289,6 +326,15 @@ body.dark-theme .topbar {
   white-space: nowrap;
 }
 
+.date-box svg {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  flex-shrink: 0;
+  display: block;
+}
+
 .user-pill {
   display: flex;
   align-items: center;
@@ -297,7 +343,7 @@ body.dark-theme .topbar {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid #2d4a6f;
   border-radius: 10px;
-  max-width: 180px;
+  max-width: 200px;
 }
 
 .pill-avatar {
@@ -317,7 +363,7 @@ body.dark-theme .topbar {
 .pill-info {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  line-height: 1.25;
   min-width: 0;
 }
 
@@ -330,8 +376,10 @@ body.dark-theme .topbar {
 }
 
 .pill-role {
+  display: block;
   font-size: 11px;
   color: #94a3b8;
+  line-height: 1.2;
 }
 
 .content {
@@ -342,7 +390,7 @@ body.dark-theme .topbar {
   min-width: 0;
 }
 
-/* ---------- MOBILE / TABLET ---------- */
+/* ---------- MOBILE ---------- */
 @media (max-width: 899px) {
   .sidebar {
     position: fixed;

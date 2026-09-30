@@ -76,9 +76,11 @@ body {
   min-width: 0;
 }
 
-img,
-svg {
+/* Images only — never apply max-width:100% to ALL svgs.
+   That rule made sidebar nav icons expand to full sidebar width. */
+img {
   max-width: 100%;
+  height: auto;
 }
 
 button,
@@ -90,4 +92,5 @@ textarea {
 
 a {
   color: inherit;
+  text-decoration: none;
 }
