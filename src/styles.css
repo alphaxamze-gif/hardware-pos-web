@@ -1,115 +1,93 @@
-/* Hardware PRO – Industrial Design Tokens */
-
-:root {
-  --color-primary: #1E3A5F;
-  --color-primary-hover: #16304F;
-  --color-secondary: #475569;
-  --color-accent: #F97316;
-  --color-accent-hover: #EA580C;
-
-  --color-success: #16A34A;
-  --color-warning: #F59E0B;
-  --color-danger: #DC2626;
-
-  --color-bg: #F8FAFC;
-  --color-surface: #FFFFFF;
-  --color-border: #E2E8F0;
-
-  --color-text: #0F172A;
-  --color-text-muted: #64748B;
-
-  --sidebar-bg: #1E3A5F;
-  --sidebar-text: #E2E8F0;
-  --sidebar-muted: #94A3B8;
-  --sidebar-active: #F97316;
-
-  --topbar-bg: #1E3A5F;
-  --topbar-text: #E2E8F0;
-  --topbar-muted: #94A3B8;
-  --topbar-border: #2D4A6F;
-}
-
-body.dark-theme {
-  --color-bg: #0F172A;
-  --color-surface: #1E293B;
-  --color-border: #334155;
-  --color-text: #E2E8F0;
-  --color-text-muted: #94A3B8;
-
-  --sidebar-bg: #020617;
-  --topbar-bg: #020617;
-  --topbar-border: #1E293B;
-}
-
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: var(--color-bg);
-  color: var(--color-text);
-}/* =====================================================
-   Hardware PRO – Industrial Design System
+/* =====================================================
+   Hardware PRO — Industrial Design System (single source)
    ===================================================== */
 
 :root {
-  /* Brand */
-  --primary: #1E3A5F;
-  --primary-hover: #16304F;
+  --primary: #1e3a5f;
+  --primary-hover: #16304f;
   --secondary: #475569;
-  --accent: #F97316;
-  --accent-hover: #EA580C;
+  --accent: #f97316;
+  --accent-hover: #ea580c;
 
-  /* Semantic */
-  --success: #16A34A;
-  --warning: #F59E0B;
-  --danger: #DC2626;
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #dc2626;
 
-  /* Surfaces */
-  --bg: #F8FAFC;
-  --surface: #FFFFFF;
-  --border: #E2E8F0;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
 
-  /* Text */
-  --text: #0F172A;
-  --text-muted: #64748B;
+  --text: #0f172a;
+  --text-muted: #64748b;
 
-  /* Navigation */
-  --sidebar-bg: #1E3A5F;
-  --sidebar-text: #F1F5F9;
-  --sidebar-muted: #94A3B8;
-  --sidebar-hover: rgba(255,255,255,0.06);
-  --sidebar-active-bg: rgba(249, 115, 22, 0.15);
-  --sidebar-active-border: #F97316;
+  --sidebar-bg: #1e3a5f;
+  --sidebar-text: #f1f5f9;
+  --sidebar-muted: #94a3b8;
+  --sidebar-hover: rgba(255, 255, 255, 0.08);
+  --sidebar-active-bg: rgba(249, 115, 22, 0.18);
+  --sidebar-active-border: #f97316;
 
-  /* Topbar */
-  --topbar-bg: #1E3A5F;
-  --topbar-text: #F1F5F9;
-  --topbar-muted: #94A3B8;
-  --topbar-border: #2D4A6F;
+  --topbar-bg: #1e3a5f;
+  --topbar-text: #f1f5f9;
+  --topbar-muted: #94a3b8;
+  --topbar-border: #2d4a6f;
+
+  --sidebar-width: 260px;
+  --topbar-height: 60px;
+  --radius: 10px;
+  --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
 }
 
 body.dark-theme {
-  --bg: #0F172A;
-  --surface: #1E293B;
+  --bg: #0f172a;
+  --surface: #1e293b;
   --border: #334155;
-  --text: #F1F5F9;
-  --text-muted: #94A3B8;
-
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
   --sidebar-bg: #020617;
   --topbar-bg: #020617;
-  --topbar-border: #1E293B;
+  --topbar-border: #1e293b;
+  --shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  padding: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
   font-size: 15px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Utility: full-width page shells for feature modules */
+.page-shell {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
 }
