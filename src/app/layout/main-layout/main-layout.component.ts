@@ -9,15 +9,16 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './main-layout.component.html',
-  styleUrl: './main-layout.component.css'
+  styleUrl: './main-layout.component.css',
 })
 export class MainLayoutComponent implements OnInit {
   user: any;
-  /** Desktop: open = expanded sidebar. Mobile: open = drawer visible. */
   isSidebarOpen = true;
   isDarkMode = false;
   today = new Date();
   isMobile = false;
+
+  private readonly MOBILE_BP = 900;
 
   constructor(
     private authService: AuthService,
@@ -30,11 +31,10 @@ export class MainLayoutComponent implements OnInit {
     const saved = localStorage.getItem('theme');
     this.isDarkMode = saved === 'dark';
     this.applyTheme();
-    this.checkViewport();
+    this.syncViewport(true);
 
-    // Close mobile drawer after navigation
     this.router.events
-      .pipe(filter((e) => e instanceof NavigationEnd))
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe(() => {
         if (this.isMobile) {
           this.isSidebarOpen = false;
@@ -44,15 +44,15 @@ export class MainLayoutComponent implements OnInit {
 
   @HostListener('window:resize')
   onResize() {
-    this.checkViewport();
+    this.syncViewport(false);
   }
 
-  private checkViewport() {
-    const mobile = window.innerWidth < 900;
-    if (mobile !== this.isMobile) {
+  /** Keep mobile/desktop sidebar state consistent with viewport. */
+  private syncViewport(forceInit: boolean) {
+    const mobile = typeof window !== 'undefined' && window.innerWidth < this.MOBILE_BP;
+    if (forceInit || mobile !== this.isMobile) {
       this.isMobile = mobile;
-      // Desktop starts open; mobile starts closed
-      this.isSidebarOpen = !mobile;
+      this.isSidebarOpen = !mobile; // desktop open, mobile closed by default
     }
   }
 
@@ -60,7 +60,7 @@ export class MainLayoutComponent implements OnInit {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
 
-  closeSidebar() {
+  closeMobileSidebar() {
     if (this.isMobile) {
       this.isSidebarOpen = false;
     }
