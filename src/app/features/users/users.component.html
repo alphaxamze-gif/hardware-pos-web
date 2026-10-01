@@ -1,0 +1,110 @@
+<div class="page-shell users-page">
+  <div class="page-header">
+    <div>
+      <h1>Users</h1>
+      <p class="subtitle">Manage staff accounts and roles (ADMIN only)</p>
+    </div>
+    <button type="button" class="btn-primary" (click)="openCreate()">Add user</button>
+  </div>
+
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+  <div class="alert success" *ngIf="success">{{ success }}</div>
+
+  <div class="card form-card" *ngIf="showForm">
+    <h2>{{ editingId ? 'Edit user' : 'New user' }}</h2>
+
+    <div class="form-grid">
+      <label>
+        First name
+        <input type="text" [(ngModel)]="form.firstName" name="firstName" />
+      </label>
+      <label>
+        Last name
+        <input type="text" [(ngModel)]="form.lastName" name="lastName" />
+      </label>
+      <label>
+        Email
+        <input
+          type="email"
+          [(ngModel)]="form.email"
+          name="email"
+          [disabled]="!!editingId"
+        />
+      </label>
+      <label>
+        Password
+        <input
+          type="password"
+          [(ngModel)]="form.password"
+          name="password"
+          [placeholder]="editingId ? 'Leave blank to keep current' : 'Min 6 characters'"
+        />
+      </label>
+      <label>
+        Role
+        <select [(ngModel)]="form.role" name="role">
+          <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+        </select>
+      </label>
+      <label class="checkbox" *ngIf="editingId">
+        <input type="checkbox" [(ngModel)]="form.isActive" name="isActive" />
+        Active
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-primary" (click)="save()">Save</button>
+      <button type="button" class="btn-secondary" (click)="cancelForm()">Cancel</button>
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <div class="loading" *ngIf="loading">Loading users…</div>
+
+    <div class="table-wrap" *ngIf="!loading">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of users">
+            <td>{{ u.firstName }} {{ u.lastName }}</td>
+            <td>{{ u.email }}</td>
+            <td><span class="badge role">{{ u.role }}</span></td>
+            <td>
+              <span class="badge" [class.active]="u.isActive" [class.inactive]="!u.isActive">
+                {{ u.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="actions">
+              <button type="button" class="btn-link" (click)="openEdit(u)">Edit</button>
+              <button
+                type="button"
+                class="btn-link danger"
+                *ngIf="u.isActive"
+                (click)="deactivate(u)"
+              >
+                Deactivate
+              </button>
+              <button
+                type="button"
+                class="btn-link"
+                *ngIf="!u.isActive"
+                (click)="activate(u)"
+              >
+                Activate
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="empty" *ngIf="users.length === 0">No users found.</p>
+    </div>
+  </div>
+</div>

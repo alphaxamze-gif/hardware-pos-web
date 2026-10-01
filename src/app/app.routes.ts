@@ -19,7 +19,6 @@ export const routes: Routes = [
             (m) => m.DashboardComponent
           ),
       },
-
       {
         path: 'products',
         loadComponent: () =>
@@ -27,7 +26,6 @@ export const routes: Routes = [
             (m) => m.ProductsComponent
           ),
       },
-
       {
         path: 'categories',
         loadComponent: () =>
@@ -35,7 +33,13 @@ export const routes: Routes = [
             (m) => m.CategoriesComponent
           ),
       },
-      // We will add more routes here later (products, sales, etc.)
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./features/users/users.component').then(
+            (m) => m.UsersComponent
+          ),
+      },
     ],
   },
 
