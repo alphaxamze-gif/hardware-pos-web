@@ -1,16 +1,39 @@
 <div class="categories-page">
-  <!-- Header -->
   <div class="page-header">
     <div>
       <h1>Categories</h1>
       <p class="subtitle">Organize your products by category</p>
     </div>
-    <button class="btn-primary" disabled title="Coming next">
+    <button type="button" class="btn-primary" (click)="openCreate()">
       + Add Category
     </button>
   </div>
 
-  <!-- Search -->
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+  <div class="alert success" *ngIf="success">{{ success }}</div>
+
+  <div class="card form-card" *ngIf="showForm">
+    <h2>{{ editingId ? 'Edit category' : 'New category' }}</h2>
+    <div class="form-grid">
+      <label>
+        Name *
+        <input type="text" [(ngModel)]="form.name" name="catName" placeholder="e.g. Cement" />
+      </label>
+      <label class="full">
+        Description
+        <input type="text" [(ngModel)]="form.description" name="catDesc" placeholder="Optional" />
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn-primary" (click)="save()" [disabled]="saving">
+        {{ saving ? 'Saving…' : (editingId ? 'Update category' : 'Save category') }}
+      </button>
+      <button type="button" class="btn-secondary" (click)="cancelForm()" [disabled]="saving">
+        Cancel
+      </button>
+    </div>
+  </div>
+
   <div class="toolbar">
     <div class="search-box">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -26,18 +49,16 @@
     </div>
   </div>
 
-  <!-- States -->
   <div *ngIf="loading" class="state">Loading categories...</div>
-  <div *ngIf="error" class="state error">{{ error }}</div>
 
-  <!-- Table -->
-  <div class="table-card" *ngIf="!loading && !error">
+  <div class="table-card" *ngIf="!loading">
     <table>
       <thead>
         <tr>
           <th>Name</th>
           <th>Description</th>
           <th>Status</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -49,10 +70,13 @@
               {{ category.isActive ? 'Active' : 'Inactive' }}
             </span>
           </td>
+          <td class="actions">
+            <button type="button" class="btn-link" (click)="openEdit(category)">Edit</button>
+            <button type="button" class="btn-link danger" (click)="remove(category)">Delete</button>
+          </td>
         </tr>
-
         <tr *ngIf="filteredCategories.length === 0">
-          <td colspan="3" class="empty">No categories found</td>
+          <td colspan="4" class="empty">No categories found</td>
         </tr>
       </tbody>
     </table>

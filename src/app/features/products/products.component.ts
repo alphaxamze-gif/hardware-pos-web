@@ -2,60 +2,344 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
+import { CategoryService } from '../../core/services/category.service';
+import { SupplierService, Supplier } from '../../core/services/supplier.service';
+import { PurchaseService } from '../../core/services/purchase.service';
 
 @Component({
   selector: 'app-products',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './products.component.html',
-  styleUrl: './products.component.css'
+  styleUrl: './products.component.css',
 })
 export class ProductsComponent implements OnInit {
   products: any[] = [];
   filteredProducts: any[] = [];
+  categories: any[] = [];
+  suppliers: Supplier[] = [];
   loading = true;
   error = '';
+  success = '';
   searchTerm = '';
 
-  constructor(private productService: ProductService) {}
+  showForm = false;
+  showRestock = false;
+  saving = false;
+  restocking = false;
+  editingId: string | null = null;
+  restockProduct: any = null;
+
+  form = {
+    name: '',
+    sku: '',
+    description: '',
+    categoryId: '',
+    costPrice: 0,
+    sellingPrice: 0,
+    currentStock: 0,
+    minStockLevel: 0,
+    unit: 'PIECE',
+  };
+
+  restockForm = {
+    supplierId: '',
+    quantity: 1,
+    unitCost: 0,
+  };
+
+  units = ['PIECE', 'BAG', 'KG', 'METER', 'FOOT', 'LITER', 'BOX', 'SET', 'TONNE'];
+
+  constructor(
+    private productService: ProductService,
+    private categoryService: CategoryService,
+    private supplierService: SupplierService,
+    private purchaseService: PurchaseService
+  ) {}
 
   ngOnInit() {
     this.loadProducts();
+    this.loadCategories();
+    this.loadSuppliers();
   }
 
   loadProducts() {
     this.loading = true;
     this.error = '';
-
     this.productService.getProducts().subscribe({
       next: (data) => {
-        this.products = data;
-        this.filteredProducts = data;
+        this.products = data || [];
+        this.filteredProducts = this.products;
         this.loading = false;
+        this.onSearch();
       },
       error: (err) => {
         this.error = err.error?.message || 'Failed to load products';
         this.loading = false;
-      }
+      },
+    });
+  }
+
+  loadCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: (data) => {
+        this.categories = data || [];
+      },
+      error: () => {
+        this.categories = [];
+      },
+    });
+  }
+
+  loadSuppliers() {
+    this.supplierService.getSuppliers().subscribe({
+      next: (data) => {
+        this.suppliers = data || [];
+      },
+      error: () => {
+        this.suppliers = [];
+      },
     });
   }
 
   onSearch() {
     const term = this.searchTerm.toLowerCase().trim();
-
     if (!term) {
       this.filteredProducts = this.products;
       return;
     }
-
-    this.filteredProducts = this.products.filter(p =>
-      p.name?.toLowerCase().includes(term) ||
-      p.sku?.toLowerCase().includes(term) ||
-      p.category?.name?.toLowerCase().includes(term)
+    this.filteredProducts = this.products.filter(
+      (p) =>
+        p.name?.toLowerCase().includes(term) ||
+        p.sku?.toLowerCase().includes(term) ||
+        p.category?.name?.toLowerCase().includes(term)
     );
   }
 
   isLowStock(product: any): boolean {
-    return product.currentStock <= product.minStockLevel;
+    return Number(product.currentStock) <= Number(product.minStockLevel);
+  }
+
+  openCreate() {
+    this.editingId = null;
+    this.showForm = true;
+    this.showRestock = false;
+    this.error = '';
+    this.success = '';
+    this.form = {
+      name: '',
+      sku: '',
+      description: '',
+      categoryId: this.categories[0]?.id || '',
+      costPrice: 0,
+      sellingPrice: 0,
+      currentStock: 0,
+      minStockLevel: 0,
+      unit: 'PIECE',
+    };
+  }
+
+  openEdit(product: any) {
+    this.editingId = product.id;
+    this.showForm = true;
+    this.showRestock = false;
+    this.error = '';
+    this.success = '';
+    this.form = {
+      name: product.name || '',
+      sku: product.sku || '',
+      description: product.description || '',
+      categoryId: product.categoryId || product.category?.id || '',
+      costPrice: product.costPrice ?? 0,
+      sellingPrice: product.sellingPrice ?? 0,
+      currentStock: product.currentStock ?? 0,
+      minStockLevel: product.minStockLevel ?? 0,
+      unit: product.unit || 'PIECE',
+    };
+  }
+
+  cancelForm() {
+    this.showForm = false;
+    this.editingId = null;
+  }
+
+  save() {
+    this.error = '';
+    this.success = '';
+
+    if (!this.form.name.trim()) {
+      this.error = 'Product name is required';
+      return;
+    }
+    if (!this.form.categoryId) {
+      this.error = 'Select a category first';
+      return;
+    }
+    if (this.form.sellingPrice === null || this.form.sellingPrice < 0) {
+      this.error = 'Selling price is required';
+      return;
+    }
+
+    this.saving = true;
+
+    if (this.editingId) {
+      this.productService
+        .updateProduct(this.editingId, {
+          name: this.form.name.trim(),
+          sku: this.form.sku.trim() || undefined,
+          description: this.form.description.trim() || undefined,
+          categoryId: this.form.categoryId,
+          costPrice: Number(this.form.costPrice) || 0,
+          sellingPrice: Number(this.form.sellingPrice),
+          minStockLevel: Number(this.form.minStockLevel) || 0,
+          unit: this.form.unit as any,
+        })
+        .subscribe({
+          next: () => {
+            this.saving = false;
+            this.showForm = false;
+            this.editingId = null;
+            this.success = 'Product updated';
+            this.loadProducts();
+          },
+          error: (err) => {
+            this.saving = false;
+            this.error = err.error?.message || 'Update failed';
+          },
+        });
+      return;
+    }
+
+    this.productService
+      .createProduct({
+        name: this.form.name.trim(),
+        sku: this.form.sku.trim() || undefined,
+        description: this.form.description.trim() || undefined,
+        categoryId: this.form.categoryId,
+        costPrice: Number(this.form.costPrice) || 0,
+        sellingPrice: Number(this.form.sellingPrice),
+        currentStock: Number(this.form.currentStock) || 0,
+        minStockLevel: Number(this.form.minStockLevel) || 0,
+        unit: this.form.unit as any,
+      })
+      .subscribe({
+        next: () => {
+          this.saving = false;
+          this.showForm = false;
+          this.success = 'Product created';
+          this.loadProducts();
+        },
+        error: (err) => {
+          this.saving = false;
+          this.error = err.error?.message || 'Failed to create product';
+        },
+      });
+  }
+
+  remove(product: any) {
+    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+    this.error = '';
+    this.productService.deleteProduct(product.id).subscribe({
+      next: () => {
+        this.success = 'Product deleted';
+        this.loadProducts();
+      },
+      error: (err) => {
+        this.error =
+          err.error?.message ||
+          'Delete failed (product may already be used in sales)';
+      },
+    });
+  }
+
+  openRestock(product: any) {
+    this.showForm = false;
+    this.showRestock = true;
+    this.restockProduct = product;
+    this.error = '';
+    this.success = '';
+    this.restockForm = {
+      supplierId: this.suppliers[0]?.id || '',
+      quantity: 1,
+      unitCost: Number(product.costPrice) || 1,
+    };
+  }
+
+  cancelRestock() {
+    this.showRestock = false;
+    this.restockProduct = null;
+  }
+
+  /** Ensure at least one supplier exists, then create a purchase that increases stock. */
+  confirmRestock() {
+    if (!this.restockProduct) return;
+
+    const qty = Number(this.restockForm.quantity);
+    const cost = Number(this.restockForm.unitCost);
+
+    if (!qty || qty <= 0) {
+      this.error = 'Quantity must be greater than 0';
+      return;
+    }
+    if (!cost || cost <= 0) {
+      this.error = 'Unit cost must be greater than 0';
+      return;
+    }
+
+    this.restocking = true;
+    this.error = '';
+
+    const runPurchase = (supplierId: string) => {
+      const total = qty * cost;
+      this.purchaseService
+        .createPurchase({
+          supplierId,
+          notes: `Restock: ${this.restockProduct.name}`,
+          amountPaid: total,
+          items: [
+            {
+              productId: this.restockProduct.id,
+              quantity: qty,
+              unitCost: cost,
+            },
+          ],
+        })
+        .subscribe({
+          next: () => {
+            this.restocking = false;
+            this.showRestock = false;
+            this.restockProduct = null;
+            this.success = `Restocked ${qty} units successfully`;
+            this.loadProducts();
+            this.loadSuppliers();
+          },
+          error: (err) => {
+            this.restocking = false;
+            this.error = err.error?.message || 'Restock failed';
+          },
+        });
+    };
+
+    if (this.restockForm.supplierId) {
+      runPurchase(this.restockForm.supplierId);
+      return;
+    }
+
+    // Auto-create a default supplier for first restock
+    this.supplierService
+      .createSupplier({ name: 'General Stock Supplier' })
+      .subscribe({
+        next: (s) => {
+          this.suppliers = [...this.suppliers, s];
+          this.restockForm.supplierId = s.id;
+          runPurchase(s.id);
+        },
+        error: (err) => {
+          this.restocking = false;
+          this.error =
+            err.error?.message ||
+            'No supplier available. Create a supplier first or try again.';
+        },
+      });
   }
 }
