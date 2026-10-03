@@ -2,86 +2,154 @@
   <div class="page-header">
     <div>
       <h1>Dashboard</h1>
-      <p class="subtitle">Overview of today’s business performance</p>
+      <p class="subtitle">Business overview · <span class="period-name">{{ periodLabel }}</span></p>
     </div>
   </div>
 
   <div *ngIf="loading" class="state">Loading dashboard...</div>
   <div *ngIf="error" class="state error">{{ error }}</div>
 
-  <div class="stats-grid" *ngIf="stats && !loading">
-    <!-- Today's Sales -->
-    <div class="stat-card">
-      <div class="card-top">
-        <span class="label">Today’s Sales</span>
-        <!-- <span class="badge primary">Sales</span> -->
+  <ng-container *ngIf="stats && !loading">
+    <!-- PRIMARY: Today's sales -->
+    <section class="metric-primary" aria-label="Primary metric">
+      <div class="primary-inner">
+        <div class="primary-copy">
+          <span class="period-chip">Today</span>
+          <h2 class="primary-label">Sales</h2>
+          <p class="primary-hint">Total invoiced amount for {{ periodLabel }}</p>
+          <div class="primary-value num">
+            <span class="currency">KES</span>
+            {{ stats.todaySales | number:'1.0-0' }}
+          </div>
+        </div>
+        <div class="primary-spark" aria-hidden="true">
+          <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+            <polyline
+              [attr.points]="sparks['todaySales']"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
       </div>
-      <div class="value">KES {{ stats.todaySales | number:'1.0-0' }}</div>
-    </div>
+    </section>
 
-    <!-- Today's Collection -->
-    <div class="stat-card">
-      <div class="card-top">
-        <span class="label">Today’s Collection</span>
-        <!-- <span class="badge success">In</span> -->
-      </div>
-      <div class="value">KES {{ stats.todayCollection | number:'1.0-0' }}</div>
-    </div>
+    <!-- SECONDARY grid -->
+    <section class="metrics-secondary" aria-label="Secondary metrics">
+      <!-- Today collection -->
+      <article class="metric-card">
+        <div class="metric-head">
+          <span class="period-chip soft">Today</span>
+          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
+            <polyline [attr.points]="sparks['todayCollection']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="metric-label">Collection</p>
+        <div class="metric-value-wrap tone-success">
+          <span class="metric-value num">KES {{ stats.todayCollection | number:'1.0-0' }}</span>
+        </div>
+      </article>
 
-    <!-- Customer Dues -->
-    <div class="stat-card">
-      <div class="card-top">
-        <span class="label">Customer Dues</span>
-        <!-- <span class="badge warning">Due</span> -->
-      </div>
-      <div class="value">KES {{ stats.customerDues | number:'1.0-0' }}</div>
-    </div>
+      <!-- Customer dues -->
+      <article class="metric-card">
+        <div class="metric-head">
+          <span class="period-chip soft">Outstanding</span>
+          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
+            <polyline [attr.points]="sparks['customerDues']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="metric-label">Customer dues</p>
+        <div class="metric-value-wrap tone-warning">
+          <span class="metric-value num">KES {{ stats.customerDues | number:'1.0-0' }}</span>
+        </div>
+      </article>
 
-    <!-- Supplier Dues -->
-    <div class="stat-card">
-      <div class="card-top">
-        <span class="label">Supplier Dues</span>
-        <!-- <span class="badge danger">Payable</span> -->
-      </div>
-      <div class="value">KES {{ stats.supplierDues | number:'1.0-0' }}</div>
-    </div>
+      <!-- Supplier dues -->
+      <article class="metric-card">
+        <div class="metric-head">
+          <span class="period-chip soft">Outstanding</span>
+          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
+            <polyline [attr.points]="sparks['supplierDues']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="metric-label">Supplier dues</p>
+        <div class="metric-value-wrap tone-danger">
+          <span class="metric-value num">KES {{ stats.supplierDues | number:'1.0-0' }}</span>
+        </div>
+      </article>
 
-    <!-- Stock Value -->
-    <div class="stat-card">
-      <div class="card-top">
-        <span class="label">Stock Value (Selling)</span>
-        <!-- <span class="badge neutral">Inventory</span> -->
-      </div>
-      <div class="value">KES {{ stats.stockValue | number:'1.0-0' }}</div>
-    </div>
+      <!-- Stock selling value -->
+      <article class="metric-card">
+        <div class="metric-head">
+          <span class="period-chip soft">Inventory</span>
+          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
+            <polyline [attr.points]="sparks['stockValue']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="metric-label">Stock value (selling)</p>
+        <div class="metric-value-wrap tone-neutral">
+          <span class="metric-value num">KES {{ stats.stockValue | number:'1.0-0' }}</span>
+        </div>
+      </article>
 
-    <!-- Stock Cost -->
-    <div class="stat-card">
-      <div class="card-top">
-        <span class="label">Stock Cost Value</span>
-        <!-- <span class="badge neutral">Cost</span> -->
-      </div>
-      <div class="value">KES {{ stats.stockCostValue | number:'1.0-0' }}</div>
-    </div>
+      <!-- Stock cost -->
+      <article class="metric-card">
+        <div class="metric-head">
+          <span class="period-chip soft">Inventory</span>
+          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
+            <polyline [attr.points]="sparks['stockCostValue']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="metric-label">Stock cost value</p>
+        <div class="metric-value-wrap tone-neutral">
+          <span class="metric-value num">KES {{ stats.stockCostValue | number:'1.0-0' }}</span>
+        </div>
+      </article>
 
-    <!-- Monthly Expenses -->
-    <div class="stat-card">
-      <div class="card-top">
-        <span class="label">Monthly Expenses</span>
-        <!-- <span class="badge neutral">Expense</span> -->
-      </div>
-      <div class="value">KES {{ stats.monthlyExpenses | number:'1.0-0' }}</div>
-    </div>
+      <!-- Monthly expenses -->
+      <article class="metric-card">
+        <div class="metric-head">
+          <span class="period-chip soft">This month</span>
+          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
+            <polyline [attr.points]="sparks['monthlyExpenses']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="metric-label">Expenses</p>
+        <div class="metric-value-wrap tone-neutral">
+          <span class="metric-value num">KES {{ stats.monthlyExpenses | number:'1.0-0' }}</span>
+        </div>
+      </article>
 
-    <!-- Low Stock -->
-    <div class="stat-card" [class.alert]="stats.lowStockCount > 0">
-      <div class="card-top">
-        <span class="label">Low Stock Items</span>
-        <!-- <span class="badge" [class.warning]="stats.lowStockCount > 0" [class.neutral]="stats.lowStockCount === 0">
-          {{ stats.lowStockCount > 0 ? 'Attention' : 'OK' }}
-        </span> -->
-      </div>
-      <div class="value">{{ stats.lowStockCount }}</div>
-    </div>
-  </div>
+      <!-- Low stock -->
+      <article class="metric-card" [class.is-alert]="stats.lowStockCount > 0">
+        <div class="metric-head">
+          <span class="period-chip soft">Inventory</span>
+          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
+            <polyline [attr.points]="sparks['lowStockCount']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="metric-label">Low stock items</p>
+        <div class="metric-value-wrap" [class.tone-warning]="stats.lowStockCount > 0" [class.tone-success]="stats.lowStockCount === 0">
+          <span class="metric-value num">{{ stats.lowStockCount | number:'1.0-0' }}</span>
+        </div>
+      </article>
+
+      <!-- Products available -->
+      <article class="metric-card" *ngIf="stats.availableProducts != null">
+        <div class="metric-head">
+          <span class="period-chip soft">Inventory</span>
+          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
+            <polyline points="0,20 16,18 33,16 50,14 66,12 83,10 100,8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="metric-label">Products in catalogue</p>
+        <div class="metric-value-wrap tone-neutral">
+          <span class="metric-value num">{{ stats.availableProducts | number:'1.0-0' }}</span>
+        </div>
+      </article>
+    </section>
+  </ng-container>
 </div>
