@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
-import { SupplierService, Supplier } from '../../core/services/supplier.service';
-import { PurchaseService } from '../../core/services/purchase.service';
 
 @Component({
   selector: 'app-products',
@@ -17,18 +15,14 @@ export class ProductsComponent implements OnInit {
   products: any[] = [];
   filteredProducts: any[] = [];
   categories: any[] = [];
-  suppliers: Supplier[] = [];
   loading = true;
   error = '';
   success = '';
   searchTerm = '';
 
   showForm = false;
-  showRestock = false;
   saving = false;
-  restocking = false;
   editingId: string | null = null;
-  restockProduct: any = null;
 
   form = {
     name: '',
@@ -42,25 +36,16 @@ export class ProductsComponent implements OnInit {
     unit: 'PIECE',
   };
 
-  restockForm = {
-    supplierId: '',
-    quantity: 1,
-    unitCost: 0,
-  };
-
   units = ['PIECE', 'BAG', 'KG', 'METER', 'FOOT', 'LITER', 'BOX', 'SET', 'TONNE'];
 
   constructor(
     private productService: ProductService,
-    private categoryService: CategoryService,
-    private supplierService: SupplierService,
-    private purchaseService: PurchaseService
+    private categoryService: CategoryService
   ) {}
 
   ngOnInit() {
     this.loadProducts();
     this.loadCategories();
-    this.loadSuppliers();
   }
 
   loadProducts() {
@@ -91,17 +76,6 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  loadSuppliers() {
-    this.supplierService.getSuppliers().subscribe({
-      next: (data) => {
-        this.suppliers = data || [];
-      },
-      error: () => {
-        this.suppliers = [];
-      },
-    });
-  }
-
   onSearch() {
     const term = this.searchTerm.toLowerCase().trim();
     if (!term) {
@@ -123,7 +97,6 @@ export class ProductsComponent implements OnInit {
   openCreate() {
     this.editingId = null;
     this.showForm = true;
-    this.showRestock = false;
     this.error = '';
     this.success = '';
     this.form = {
@@ -142,7 +115,6 @@ export class ProductsComponent implements OnInit {
   openEdit(product: any) {
     this.editingId = product.id;
     this.showForm = true;
-    this.showRestock = false;
     this.error = '';
     this.success = '';
     this.form = {
@@ -250,96 +222,5 @@ export class ProductsComponent implements OnInit {
           'Delete failed (product may already be used in sales)';
       },
     });
-  }
-
-  openRestock(product: any) {
-    this.showForm = false;
-    this.showRestock = true;
-    this.restockProduct = product;
-    this.error = '';
-    this.success = '';
-    this.restockForm = {
-      supplierId: this.suppliers[0]?.id || '',
-      quantity: 1,
-      unitCost: Number(product.costPrice) || 1,
-    };
-  }
-
-  cancelRestock() {
-    this.showRestock = false;
-    this.restockProduct = null;
-  }
-
-  /** Ensure at least one supplier exists, then create a purchase that increases stock. */
-  confirmRestock() {
-    if (!this.restockProduct) return;
-
-    const qty = Number(this.restockForm.quantity);
-    const cost = Number(this.restockForm.unitCost);
-
-    if (!qty || qty <= 0) {
-      this.error = 'Quantity must be greater than 0';
-      return;
-    }
-    if (!cost || cost <= 0) {
-      this.error = 'Unit cost must be greater than 0';
-      return;
-    }
-
-    this.restocking = true;
-    this.error = '';
-
-    const runPurchase = (supplierId: string) => {
-      const total = qty * cost;
-      this.purchaseService
-        .createPurchase({
-          supplierId,
-          notes: `Restock: ${this.restockProduct.name}`,
-          amountPaid: total,
-          items: [
-            {
-              productId: this.restockProduct.id,
-              quantity: qty,
-              unitCost: cost,
-            },
-          ],
-        })
-        .subscribe({
-          next: () => {
-            this.restocking = false;
-            this.showRestock = false;
-            this.restockProduct = null;
-            this.success = `Restocked ${qty} units successfully`;
-            this.loadProducts();
-            this.loadSuppliers();
-          },
-          error: (err) => {
-            this.restocking = false;
-            this.error = err.error?.message || 'Restock failed';
-          },
-        });
-    };
-
-    if (this.restockForm.supplierId) {
-      runPurchase(this.restockForm.supplierId);
-      return;
-    }
-
-    // Auto-create a default supplier for first restock
-    this.supplierService
-      .createSupplier({ name: 'General Stock Supplier' })
-      .subscribe({
-        next: (s) => {
-          this.suppliers = [...this.suppliers, s];
-          this.restockForm.supplierId = s.id;
-          runPurchase(s.id);
-        },
-        error: (err) => {
-          this.restocking = false;
-          this.error =
-            err.error?.message ||
-            'No supplier available. Create a supplier first or try again.';
-        },
-      });
   }
 }

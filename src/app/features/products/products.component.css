@@ -36,7 +36,6 @@
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -58,19 +57,32 @@
   font-size: 14px;
 }
 
-.btn-link {
-  background: none;
-  border: none;
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 4px;
+  padding: 0;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  background: transparent;
   color: #1e3a5f;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-  margin-right: 8px;
-  padding: 0;
 }
 
-.btn-link.danger {
+.icon-btn:hover {
+  background: rgba(30, 58, 95, 0.08);
+}
+
+.icon-btn.danger {
   color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.35);
+}
+
+.icon-btn.danger:hover {
+  background: rgba(220, 38, 38, 0.1);
 }
 
 .alert {
@@ -98,7 +110,6 @@
   border-radius: 10px;
   padding: 16px 18px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
 }
 
 .form-card h2 {
@@ -140,13 +151,6 @@
 .form-grid input:disabled {
   background: #f1f5f9;
   color: var(--text-muted, #64748b);
-}
-
-.form-grid input:focus,
-.form-grid select:focus {
-  outline: none;
-  border-color: #1e3a5f;
-  box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
 }
 
 .form-actions {
@@ -214,10 +218,6 @@ thead {
   background: #f1f5f9;
 }
 
-body.dark-theme thead {
-  background: #1e293b;
-}
-
 th {
   text-align: left;
   padding: 12px 14px;
@@ -241,10 +241,6 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
-tbody tr:hover {
-  background: rgba(30, 58, 95, 0.04);
-}
-
 .product-name {
   font-weight: 600;
 }
@@ -257,6 +253,7 @@ tbody tr:hover {
 
 .price {
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .stock-low {
@@ -266,10 +263,6 @@ tbody tr:hover {
 
 tr.low-stock {
   background: #fffbeb;
-}
-
-body.dark-theme tr.low-stock {
-  background: rgba(245, 158, 11, 0.08);
 }
 
 .status {
@@ -294,10 +287,124 @@ body.dark-theme tr.low-stock {
   white-space: nowrap;
 }
 
+.th-actions {
+  width: 100px;
+}
+
 .empty {
   text-align: center;
   padding: 40px 16px !important;
   color: var(--text-muted, #64748b);
+}
+
+/* ——— Dark mode ——— */
+body.dark-theme .page-header h1 {
+  color: #e2e8f0;
+}
+
+body.dark-theme .subtitle,
+body.dark-theme .hint,
+body.dark-theme .state,
+body.dark-theme .empty {
+  color: #7dd3fc;
+}
+
+body.dark-theme .card,
+body.dark-theme .table-card,
+body.dark-theme .search-box {
+  background: #132337;
+  border-color: #1e3a5f;
+}
+
+body.dark-theme .form-card h2,
+body.dark-theme .product-name,
+body.dark-theme td,
+body.dark-theme .price {
+  color: #e2e8f0;
+}
+
+body.dark-theme .form-grid label,
+body.dark-theme th,
+body.dark-theme .mono {
+  color: #7dd3fc;
+}
+
+body.dark-theme .form-grid input,
+body.dark-theme .form-grid select {
+  background: #0f1c2e;
+  border-color: #1e3a5f;
+  color: #e2e8f0;
+}
+
+body.dark-theme .form-grid input:disabled {
+  background: #1a283a;
+  color: #94a3b8;
+}
+
+body.dark-theme .btn-secondary {
+  border-color: #334155;
+  color: #bae6fd;
+}
+
+body.dark-theme thead {
+  background: #0f1c2e;
+}
+
+body.dark-theme tbody tr:hover {
+  background: rgba(125, 211, 252, 0.05);
+}
+
+body.dark-theme tr.low-stock {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+body.dark-theme .search-box input {
+  color: #e2e8f0;
+}
+
+body.dark-theme .search-box svg {
+  color: #7dd3fc;
+}
+
+body.dark-theme .icon-btn {
+  border-color: #334155;
+  color: #7dd3fc;
+}
+
+body.dark-theme .icon-btn:hover {
+  background: rgba(125, 211, 252, 0.1);
+  color: #bae6fd;
+}
+
+body.dark-theme .icon-btn.danger {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+body.dark-theme .icon-btn.danger:hover {
+  background: rgba(248, 113, 113, 0.12);
+}
+
+body.dark-theme .status.ok {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+body.dark-theme .status.warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+body.dark-theme .alert.error {
+  background: rgba(220, 38, 38, 0.15);
+  color: #fca5a5;
+  border-color: rgba(220, 38, 38, 0.35);
+}
+
+body.dark-theme .alert.success {
+  background: rgba(22, 163, 74, 0.15);
+  color: #86efac;
+  border-color: rgba(22, 163, 74, 0.35);
 }
 
 @media (max-width: 600px) {

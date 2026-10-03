@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h1>Products</h1>
-      <p class="subtitle">Manage inventory, edit items, and restock</p>
+      <p class="subtitle">Manage inventory items</p>
     </div>
     <button type="button" class="btn-primary" (click)="openCreate()">
       + Add Product
@@ -12,7 +12,6 @@
   <div class="alert error" *ngIf="error">{{ error }}</div>
   <div class="alert success" *ngIf="success">{{ success }}</div>
 
-  <!-- Create / Edit form -->
   <div class="card form-card" *ngIf="showForm">
     <h2>{{ editingId ? 'Edit product' : 'New product' }}</h2>
     <div class="form-grid">
@@ -63,7 +62,7 @@
       </label>
     </div>
     <p class="hint" *ngIf="editingId">
-      Stock cannot be changed here. Use <strong>Restock</strong> on the product row to add stock.
+      Stock is system-managed. Restock will use a dedicated module (purchases).
     </p>
     <p class="hint" *ngIf="categories.length === 0">
       No categories yet. Create one under <strong>Categories</strong> first.
@@ -73,40 +72,6 @@
         {{ saving ? 'Saving…' : (editingId ? 'Update product' : 'Save product') }}
       </button>
       <button type="button" class="btn-secondary" (click)="cancelForm()" [disabled]="saving">
-        Cancel
-      </button>
-    </div>
-  </div>
-
-  <!-- Restock form -->
-  <div class="card form-card" *ngIf="showRestock && restockProduct">
-    <h2>Restock — {{ restockProduct.name }}</h2>
-    <p class="hint">
-      Current stock: <strong>{{ restockProduct.currentStock }}</strong>
-      {{ restockProduct.unit }}. This records a purchase and increases stock.
-    </p>
-    <div class="form-grid">
-      <label>
-        Quantity *
-        <input type="number" min="1" [(ngModel)]="restockForm.quantity" name="restockQty" />
-      </label>
-      <label>
-        Unit cost (KES) *
-        <input type="number" min="0.01" step="0.01" [(ngModel)]="restockForm.unitCost" name="restockCost" />
-      </label>
-      <label class="full">
-        Supplier
-        <select [(ngModel)]="restockForm.supplierId" name="restockSupplier">
-          <option value="">Auto-create "General Stock Supplier" if empty</option>
-          <option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</option>
-        </select>
-      </label>
-    </div>
-    <div class="form-actions">
-      <button type="button" class="btn-primary" (click)="confirmRestock()" [disabled]="restocking">
-        {{ restocking ? 'Restocking…' : 'Confirm restock' }}
-      </button>
-      <button type="button" class="btn-secondary" (click)="cancelRestock()" [disabled]="restocking">
         Cancel
       </button>
     </div>
@@ -140,7 +105,7 @@
           <th>Unit</th>
           <th>Selling Price</th>
           <th>Status</th>
-          <th>Actions</th>
+          <th class="th-actions">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -159,9 +124,32 @@
             </span>
           </td>
           <td class="actions">
-            <button type="button" class="btn-link" (click)="openEdit(product)">Edit</button>
-            <button type="button" class="btn-link" (click)="openRestock(product)">Restock</button>
-            <button type="button" class="btn-link danger" (click)="remove(product)">Delete</button>
+            <button
+              type="button"
+              class="icon-btn"
+              title="Edit"
+              aria-label="Edit product"
+              (click)="openEdit(product)"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="icon-btn danger"
+              title="Delete"
+              aria-label="Delete product"
+              (click)="remove(product)"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
+              </svg>
+            </button>
           </td>
         </tr>
         <tr *ngIf="filteredProducts.length === 0">
