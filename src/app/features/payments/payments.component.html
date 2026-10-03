@@ -1,0 +1,114 @@
+<div class="payments-page">
+  <div class="page-header">
+    <div>
+      <h1>Payments</h1>
+      <p class="subtitle">Receive from customers · pay suppliers · clear dues</p>
+    </div>
+  </div>
+
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+  <div class="alert success" *ngIf="success">{{ success }}</div>
+
+  <div class="layout-grid" *ngIf="!loading">
+    <section class="card form-card">
+      <h2>Record payment</h2>
+
+      <label>
+        Type
+        <select [(ngModel)]="type" (ngModelChange)="onTypeChange()">
+          <option value="CUSTOMER_PAYMENT">Customer payment (reduce customer due)</option>
+          <option value="SUPPLIER_PAYMENT">Supplier payment (reduce supplier due)</option>
+        </select>
+      </label>
+
+      <label *ngIf="type === 'CUSTOMER_PAYMENT'">
+        Customer *
+        <select [(ngModel)]="customerId">
+          <option value="">Select customer with due…</option>
+          <option *ngFor="let c of customers" [value]="c.id">
+            {{ c.name }} — due KES {{ c.currentDue | number:'1.0-0' }}
+          </option>
+        </select>
+      </label>
+
+      <label *ngIf="type === 'SUPPLIER_PAYMENT'">
+        Supplier *
+        <select [(ngModel)]="supplierId">
+          <option value="">Select supplier with due…</option>
+          <option *ngFor="let s of suppliers" [value]="s.id">
+            {{ s.name }} — due KES {{ s.currentDue | number:'1.0-0' }}
+          </option>
+        </select>
+      </label>
+
+      <div class="amount-row" *ngIf="maxAmount > 0">
+        <span class="max-hint">Max: KES {{ maxAmount | number:'1.0-0' }}</span>
+        <button type="button" class="link-btn" (click)="fillFullDue()">Pay full due</button>
+      </div>
+
+      <label>
+        Amount (KES) *
+        <input type="number" min="1" step="1" [(ngModel)]="amount" />
+      </label>
+
+      <label>
+        Method
+        <select [(ngModel)]="paymentMethod">
+          <option value="CASH">Cash</option>
+          <option value="MPESA">M-Pesa</option>
+          <option value="BANK">Bank</option>
+        </select>
+      </label>
+
+      <label>
+        Reference
+        <input type="text" [(ngModel)]="reference" placeholder="Receipt / M-Pesa code" />
+      </label>
+
+      <label>
+        Notes
+        <input type="text" [(ngModel)]="notes" />
+      </label>
+
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="submit()"
+        [disabled]="submitting"
+      >
+        {{ submitting ? 'Saving…' : 'Record payment' }}
+      </button>
+    </section>
+
+    <section class="card list-card">
+      <h2>Recent payments</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Party</th>
+              <th>Method</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of payments">
+              <td>{{ p.paymentDate || p.createdAt | date:'medium' }}</td>
+              <td>{{ p.type === 'CUSTOMER_PAYMENT' ? 'Customer' : 'Supplier' }}</td>
+              <td>{{ p.customer?.name || p.supplier?.name || '—' }}</td>
+              <td>{{ p.paymentMethod }}</td>
+              <td class="num">KES {{ p.amount | number:'1.0-0' }}</td>
+            </tr>
+            <tr *ngIf="payments.length === 0">
+              <td colspan="5" class="empty">No payments yet</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div *ngIf="loading" class="state">Loading…</div>
+</div>

@@ -65,6 +65,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'payments',
+        loadComponent: () =>
+          import('./features/payments/payments.component').then(
+            (m) => m.PaymentsComponent
+          ),
+      },
+      {
         path: 'users',
         loadComponent: () =>
           import('./features/users/users.component').then(
