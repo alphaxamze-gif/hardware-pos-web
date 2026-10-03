@@ -48,24 +48,25 @@
 
 .period-chip {
   display: inline-block;
-  padding: 3px 9px;
-  border-radius: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: #1e3a5f;
-  color: #fff;
+  background: transparent;
+  color: #1e3a5f;
 }
 
 .period-chip.soft {
   background: transparent;
-  border: 1px solid var(--border, #c5dff0);
+  border: none;
   color: #4b6b82;
 }
 
 .primary-label {
-  margin: 12px 0 6px;
+  margin: 10px 0 6px;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-muted, #4b6b82);
@@ -99,7 +100,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .metric-card.is-alert {
@@ -117,10 +118,10 @@
   display: inline-flex;
   align-self: flex-start;
   max-width: 100%;
-  padding: 7px 11px;
+  padding: 6px 10px;
   border-radius: 8px;
   background: rgba(30, 58, 95, 0.06);
-  border: 1px solid transparent;
+  border: none;
 }
 
 .metric-value {
@@ -135,7 +136,6 @@
 
 .tone-success {
   background: rgba(22, 163, 74, 0.1);
-  border-color: rgba(22, 163, 74, 0.2);
 }
 .tone-success .metric-value {
   color: #15803d;
@@ -143,7 +143,6 @@
 
 .tone-warning {
   background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.25);
 }
 .tone-warning .metric-value {
   color: #b45309;
@@ -151,7 +150,6 @@
 
 .tone-danger {
   background: rgba(220, 38, 38, 0.08);
-  border-color: rgba(220, 38, 38, 0.2);
 }
 .tone-danger .metric-value {
   color: #b91c1c;
@@ -159,7 +157,6 @@
 
 .tone-neutral {
   background: rgba(30, 58, 95, 0.06);
-  border-color: rgba(30, 58, 95, 0.1);
 }
 
 :host-context(body.dark-theme) .page-header h1 {
@@ -177,19 +174,20 @@
 }
 
 :host-context(body.dark-theme) .period-chip {
-  background: #0c4a6e;
-  color: #bae6fd;
+  background: transparent;
+  border: none;
+  color: #7dd3fc;
 }
 
 :host-context(body.dark-theme) .period-chip.soft {
   background: transparent;
-  border-color: #334155;
+  border: none;
   color: #7dd3fc;
 }
 
 :host-context(body.dark-theme) .primary-label,
 :host-context(body.dark-theme) .metric-label {
-  color: #7dd3fc;
+  color: #94a3b8;
 }
 
 :host-context(body.dark-theme) .primary-value {
@@ -212,7 +210,7 @@
 
 :host-context(body.dark-theme) .metric-value-wrap {
   background: rgba(125, 211, 252, 0.08);
-  border-color: rgba(125, 211, 252, 0.15);
+  border: none;
 }
 
 :host-context(body.dark-theme) .metric-value {
@@ -221,7 +219,6 @@
 
 :host-context(body.dark-theme) .tone-success {
   background: rgba(34, 197, 94, 0.12);
-  border-color: rgba(34, 197, 94, 0.25);
 }
 :host-context(body.dark-theme) .tone-success .metric-value {
   color: #4ade80;
@@ -229,7 +226,6 @@
 
 :host-context(body.dark-theme) .tone-warning {
   background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.3);
 }
 :host-context(body.dark-theme) .tone-warning .metric-value {
   color: #fbbf24;
@@ -237,7 +233,6 @@
 
 :host-context(body.dark-theme) .tone-danger {
   background: rgba(248, 113, 113, 0.1);
-  border-color: rgba(248, 113, 113, 0.25);
 }
 :host-context(body.dark-theme) .tone-danger .metric-value {
   color: #f87171;
@@ -245,7 +240,6 @@
 
 :host-context(body.dark-theme) .tone-neutral {
   background: rgba(125, 211, 252, 0.08);
-  border-color: rgba(125, 211, 252, 0.15);
 }
 :host-context(body.dark-theme) .tone-neutral .metric-value {
   color: #bae6fd;
