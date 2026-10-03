@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h1>Dashboard</h1>
-      <p class="subtitle">Business overview · <span class="period-name">{{ periodLabel }}</span></p>
+      <p class="subtitle">{{ periodLabel }}</p>
     </div>
   </div>
 
@@ -10,141 +10,78 @@
   <div *ngIf="error" class="state error">{{ error }}</div>
 
   <ng-container *ngIf="stats && !loading">
-    <!-- PRIMARY: Today's sales -->
-    <section class="metric-primary" aria-label="Primary metric">
-      <div class="primary-inner">
-        <div class="primary-copy">
-          <span class="period-chip">Today</span>
-          <h2 class="primary-label">Sales</h2>
-          <p class="primary-hint">Total invoiced amount for {{ periodLabel }}</p>
-          <div class="primary-value num">
-            <span class="currency">KES</span>
-            {{ stats.todaySales | number:'1.0-0' }}
-          </div>
-        </div>
-        <div class="primary-spark" aria-hidden="true">
-          <svg viewBox="0 0 100 28" preserveAspectRatio="none">
-            <polyline
-              [attr.points]="sparks['todaySales']"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </div>
+    <!-- PRIMARY: Today's sales — flat construction blue accent -->
+    <section class="metric-primary" aria-label="Today sales">
+      <span class="period-chip">Today</span>
+      <p class="primary-label">Sales</p>
+      <div class="primary-value num">
+        <span class="currency">KES</span>{{ stats.todaySales | number:'1.0-0' }}
       </div>
     </section>
 
-    <!-- SECONDARY grid -->
-    <section class="metrics-secondary" aria-label="Secondary metrics">
-      <!-- Today collection -->
+    <section class="metrics-secondary" aria-label="Other metrics">
       <article class="metric-card">
-        <div class="metric-head">
-          <span class="period-chip soft">Today</span>
-          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
-            <polyline [attr.points]="sparks['todayCollection']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+        <span class="period-chip soft">Today</span>
         <p class="metric-label">Collection</p>
         <div class="metric-value-wrap tone-success">
           <span class="metric-value num">KES {{ stats.todayCollection | number:'1.0-0' }}</span>
         </div>
       </article>
 
-      <!-- Customer dues -->
       <article class="metric-card">
-        <div class="metric-head">
-          <span class="period-chip soft">Outstanding</span>
-          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
-            <polyline [attr.points]="sparks['customerDues']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+        <span class="period-chip soft">Outstanding</span>
         <p class="metric-label">Customer dues</p>
         <div class="metric-value-wrap tone-warning">
           <span class="metric-value num">KES {{ stats.customerDues | number:'1.0-0' }}</span>
         </div>
       </article>
 
-      <!-- Supplier dues -->
       <article class="metric-card">
-        <div class="metric-head">
-          <span class="period-chip soft">Outstanding</span>
-          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
-            <polyline [attr.points]="sparks['supplierDues']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+        <span class="period-chip soft">Outstanding</span>
         <p class="metric-label">Supplier dues</p>
         <div class="metric-value-wrap tone-danger">
           <span class="metric-value num">KES {{ stats.supplierDues | number:'1.0-0' }}</span>
         </div>
       </article>
 
-      <!-- Stock selling value -->
       <article class="metric-card">
-        <div class="metric-head">
-          <span class="period-chip soft">Inventory</span>
-          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
-            <polyline [attr.points]="sparks['stockValue']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+        <span class="period-chip soft">Inventory</span>
         <p class="metric-label">Stock value (selling)</p>
         <div class="metric-value-wrap tone-neutral">
           <span class="metric-value num">KES {{ stats.stockValue | number:'1.0-0' }}</span>
         </div>
       </article>
 
-      <!-- Stock cost -->
       <article class="metric-card">
-        <div class="metric-head">
-          <span class="period-chip soft">Inventory</span>
-          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
-            <polyline [attr.points]="sparks['stockCostValue']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+        <span class="period-chip soft">Inventory</span>
         <p class="metric-label">Stock cost value</p>
         <div class="metric-value-wrap tone-neutral">
           <span class="metric-value num">KES {{ stats.stockCostValue | number:'1.0-0' }}</span>
         </div>
       </article>
 
-      <!-- Monthly expenses -->
       <article class="metric-card">
-        <div class="metric-head">
-          <span class="period-chip soft">This month</span>
-          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
-            <polyline [attr.points]="sparks['monthlyExpenses']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+        <span class="period-chip soft">This month</span>
         <p class="metric-label">Expenses</p>
         <div class="metric-value-wrap tone-neutral">
           <span class="metric-value num">KES {{ stats.monthlyExpenses | number:'1.0-0' }}</span>
         </div>
       </article>
 
-      <!-- Low stock -->
       <article class="metric-card" [class.is-alert]="stats.lowStockCount > 0">
-        <div class="metric-head">
-          <span class="period-chip soft">Inventory</span>
-          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
-            <polyline [attr.points]="sparks['lowStockCount']" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+        <span class="period-chip soft">Inventory</span>
         <p class="metric-label">Low stock items</p>
-        <div class="metric-value-wrap" [class.tone-warning]="stats.lowStockCount > 0" [class.tone-success]="stats.lowStockCount === 0">
+        <div
+          class="metric-value-wrap"
+          [class.tone-warning]="stats.lowStockCount > 0"
+          [class.tone-success]="stats.lowStockCount === 0"
+        >
           <span class="metric-value num">{{ stats.lowStockCount | number:'1.0-0' }}</span>
         </div>
       </article>
 
-      <!-- Products available -->
       <article class="metric-card" *ngIf="stats.availableProducts != null">
-        <div class="metric-head">
-          <span class="period-chip soft">Inventory</span>
-          <svg class="spark" viewBox="0 0 100 28" aria-hidden="true">
-            <polyline points="0,20 16,18 33,16 50,14 66,12 83,10 100,8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+        <span class="period-chip soft">Inventory</span>
         <p class="metric-label">Products in catalogue</p>
         <div class="metric-value-wrap tone-neutral">
           <span class="metric-value num">{{ stats.availableProducts | number:'1.0-0' }}</span>
