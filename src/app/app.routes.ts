@@ -20,6 +20,18 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'sales',
+        loadComponent: () =>
+          import('./features/sales/pos.component').then((m) => m.PosComponent),
+      },
+      {
+        path: 'sales-history',
+        loadComponent: () =>
+          import('./features/sales/sales-history.component').then(
+            (m) => m.SalesHistoryComponent
+          ),
+      },
+      {
         path: 'products',
         loadComponent: () =>
           import('./features/products/products.component').then(

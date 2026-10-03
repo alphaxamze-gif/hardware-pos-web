@@ -1,0 +1,125 @@
+<div class="pos-page">
+  <div class="page-header">
+    <div>
+      <h1>POS</h1>
+      <p class="subtitle">Cash and credit sales</p>
+    </div>
+  </div>
+
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+  <div class="alert success" *ngIf="success">{{ success }}</div>
+
+  <div *ngIf="loading" class="state">Loading products…</div>
+
+  <div class="pos-grid" *ngIf="!loading">
+    <section class="card products-panel">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Search name, SKU, category…"
+          [(ngModel)]="search"
+          (input)="applySearch()"
+        />
+      </div>
+
+      <div class="product-list">
+        <button
+          type="button"
+          class="product-row"
+          *ngFor="let p of filteredProducts"
+          (click)="addToCart(p)"
+        >
+          <div class="p-name">{{ p.name }}</div>
+          <div class="p-meta">
+            <span>{{ p.currentStock }} {{ p.unit }}</span>
+            <span class="p-price num">KES {{ p.sellingPrice | number:'1.0-0' }}</span>
+          </div>
+        </button>
+        <div class="empty" *ngIf="filteredProducts.length === 0">No products match</div>
+      </div>
+    </section>
+
+    <section class="card cart-panel">
+      <h2>Cart</h2>
+
+      <div class="cart-empty" *ngIf="cart.length === 0">No items yet</div>
+
+      <ul class="cart-lines" *ngIf="cart.length > 0">
+        <li *ngFor="let line of cart">
+          <div class="line-top">
+            <strong>{{ line.name }}</strong>
+            <button type="button" class="link-danger" (click)="removeLine(line.productId)">Remove</button>
+          </div>
+          <div class="line-controls">
+            <label>
+              Qty
+              <input
+                type="number"
+                min="1"
+                [max]="line.maxStock"
+                [ngModel]="line.quantity"
+                (ngModelChange)="setQty(line, $event)"
+              />
+            </label>
+            <span class="line-total num">
+              KES {{ line.quantity * line.unitPrice | number:'1.0-0' }}
+            </span>
+          </div>
+        </li>
+      </ul>
+
+      <div class="pay-block">
+        <label>
+          Payment
+          <select [(ngModel)]="paymentMethod" (ngModelChange)="onPaymentMethodChange()">
+            <option value="CASH">Cash</option>
+            <option value="CREDIT">Credit</option>
+          </select>
+        </label>
+
+        <label *ngIf="paymentMethod === 'CREDIT'">
+          Customer *
+          <select [(ngModel)]="customerId">
+            <option value="">Select customer…</option>
+            <option *ngFor="let c of customers" [value]="c.id">
+              {{ c.name }} — due KES {{ c.currentDue || 0 | number:'1.0-0' }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Discount (KES)
+          <input type="number" min="0" [(ngModel)]="discount" (ngModelChange)="onDiscountChange()" />
+        </label>
+
+        <label>
+          Amount paid (KES)
+          <input type="number" min="0" [(ngModel)]="amountPaid" [disabled]="paymentMethod === 'CASH'" />
+        </label>
+
+        <label>
+          Notes
+          <input type="text" [(ngModel)]="notes" />
+        </label>
+      </div>
+
+      <div class="totals">
+        <div class="row"><span>Subtotal</span><span class="num">KES {{ subtotal | number:'1.0-0' }}</span></div>
+        <div class="row"><span>Discount</span><span class="num">KES {{ discount || 0 | number:'1.0-0' }}</span></div>
+        <div class="row total"><span>Total</span><span class="num">KES {{ total | number:'1.0-0' }}</span></div>
+        <div class="row" *ngIf="paymentMethod === 'CREDIT' && due > 0">
+          <span>On account</span><span class="num due">KES {{ due | number:'1.0-0' }}</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-secondary" (click)="clearCart()" [disabled]="submitting || cart.length === 0">
+          Clear
+        </button>
+        <button type="button" class="btn-primary" (click)="completeSale()" [disabled]="submitting || cart.length === 0">
+          {{ submitting ? 'Processing…' : 'Complete sale' }}
+        </button>
+      </div>
+    </section>
+  </div>
+</div>

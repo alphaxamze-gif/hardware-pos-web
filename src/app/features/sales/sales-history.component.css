@@ -1,0 +1,93 @@
+.history-page { width: 100%; min-width: 0; }
+
+.page-header { margin-bottom: 16px; }
+.page-header h1 {
+  margin: 0;
+  font-size: clamp(22px, 4vw, 26px);
+  font-weight: 700;
+  color: var(--text, #0f172a);
+}
+.subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--text-muted, #4b6b82);
+}
+
+.alert.error {
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.toolbar { margin-bottom: 14px; }
+.search {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #c5dff0);
+  border-radius: 8px;
+  background: var(--surface, #f0f9ff);
+  color: var(--text, #0f172a);
+}
+
+.state {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted, #4b6b82);
+}
+
+.table-card {
+  background: var(--surface, #f0f9ff);
+  border: 1px solid var(--border, #c5dff0);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+thead { background: #dbeaf5; }
+th {
+  text-align: left;
+  padding: 12px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #3d5a73;
+  border-bottom: 1px solid var(--border, #c5dff0);
+}
+td {
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--text, #0f172a);
+  border-bottom: 1px solid var(--border, #c5dff0);
+}
+.num { font-variant-numeric: tabular-nums; font-weight: 600; }
+.empty {
+  text-align: center;
+  padding: 40px !important;
+  color: var(--text-muted, #4b6b82);
+}
+
+:host-context(body.dark-theme) .page-header h1,
+:host-context(body.dark-theme) td {
+  color: #e2e8f0;
+}
+:host-context(body.dark-theme) .subtitle,
+:host-context(body.dark-theme) .state,
+:host-context(body.dark-theme) .empty,
+:host-context(body.dark-theme) th {
+  color: #7dd3fc;
+}
+:host-context(body.dark-theme) .table-card,
+:host-context(body.dark-theme) .search {
+  background: #132337;
+  border-color: #1e3a5f;
+  color: #e2e8f0;
+}
+:host-context(body.dark-theme) thead { background: #0f1c2e; }

@@ -1,0 +1,50 @@
+<div class="history-page">
+  <div class="page-header">
+    <div>
+      <h1>Sales history</h1>
+      <p class="subtitle">Completed sales (void/reversal not available yet)</p>
+    </div>
+  </div>
+
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+
+  <div class="toolbar">
+    <input
+      type="text"
+      class="search"
+      placeholder="Search invoice, customer, method…"
+      [(ngModel)]="search"
+      (input)="applySearch()"
+    />
+  </div>
+
+  <div *ngIf="loading" class="state">Loading sales…</div>
+
+  <div class="table-card" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Method</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Paid</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of filtered">
+          <td>{{ s.saleDate || s.createdAt | date:'medium' }}</td>
+          <td>{{ s.customer?.name || 'Walk-in' }}</td>
+          <td>{{ s.paymentMethod }}</td>
+          <td>{{ s.items?.length || 0 }}</td>
+          <td class="num">KES {{ s.totalAmount | number:'1.0-0' }}</td>
+          <td class="num">KES {{ s.amountPaid | number:'1.0-0' }}</td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="6" class="empty">No sales found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
