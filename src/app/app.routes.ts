@@ -58,6 +58,13 @@ export const routes: Routes = [
         pathMatch: 'full',
       },
       {
+        path: 'customers',
+        loadComponent: () =>
+          import('./features/customers/customers.component').then(
+            (m) => m.CustomersComponent
+          ),
+      },
+      {
         path: 'users',
         loadComponent: () =>
           import('./features/users/users.component').then(

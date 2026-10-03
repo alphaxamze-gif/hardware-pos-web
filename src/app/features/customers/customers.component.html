@@ -1,228 +1,113 @@
 <div class="customers-page">
-
   <div class="page-header">
     <div>
       <h1>Customers</h1>
-      <p>Manage customers, credit limits, and outstanding balances.</p>
+      <p class="subtitle">Credit accounts, contacts, and outstanding balances</p>
     </div>
-
-    <button class="primary-button" type="button" (click)="openCreateForm()">
+    <button type="button" class="btn-primary" (click)="openCreateForm()">
       + Add Customer
     </button>
   </div>
 
+  <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="alert success" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <div class="card form-card" *ngIf="showForm">
+    <h2>{{ editingCustomer ? 'Edit customer' : 'New customer' }}</h2>
+    <div class="form-grid">
+      <label>
+        Name *
+        <input type="text" [(ngModel)]="form.name" name="custName" />
+      </label>
+      <label>
+        Phone
+        <input type="text" [(ngModel)]="form.phone" name="custPhone" placeholder="0712345678" />
+      </label>
+      <label>
+        Email
+        <input type="email" [(ngModel)]="form.email" name="custEmail" />
+      </label>
+      <label>
+        Credit limit (KES)
+        <input type="number" min="0" [(ngModel)]="form.creditLimit" name="custLimit" />
+      </label>
+      <label class="full">
+        Address
+        <input type="text" [(ngModel)]="form.address" name="custAddress" />
+      </label>
+    </div>
+    <p class="hint">
+      Current due is calculated by sales and payments — it cannot be edited here.
+    </p>
+    <div class="form-actions">
+      <button type="button" class="btn-primary" (click)="saveCustomer()" [disabled]="saving">
+        {{ saving ? 'Saving…' : 'Save customer' }}
+      </button>
+      <button type="button" class="btn-secondary" (click)="closeForm()" [disabled]="saving">
+        Cancel
+      </button>
+    </div>
+  </div>
+
   <div class="toolbar">
-    <input
-      type="text"
-      placeholder="Search by name, phone, or email..."
-      [(ngModel)]="searchTerm"
-      (ngModelChange)="onSearch()"
-    />
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Search name, phone, or email…"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearch()"
+      />
+    </div>
   </div>
 
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </div>
+  <div *ngIf="loading && customers.length === 0" class="state">Loading customers…</div>
 
-  <div *ngIf="loading && customers.length === 0" class="loading">
-    Loading customers...
-  </div>
-
-  <div
-    *ngIf="!loading && customers.length === 0 && !errorMessage"
-    class="empty-state"
-  >
-    <h2>No customers yet</h2>
-    <p>Add your first customer to get started.</p>
-
-    <button
-      class="primary-button"
-      type="button"
-      (click)="openCreateForm()"
-    >
-      Add Customer
-    </button>
-  </div>
-
-  <div
-    *ngIf="customers.length > 0"
-    class="table-card"
-  >
+  <div class="table-card" *ngIf="!loading || customers.length > 0">
     <table>
       <thead>
         <tr>
           <th>Customer</th>
           <th>Phone</th>
           <th>Email</th>
-          <th>Credit Limit</th>
-          <th>Current Due</th>
+          <th>Credit limit</th>
+          <th>Current due</th>
           <th>Status</th>
-          <th>Actions</th>
+          <th class="th-actions">Actions</th>
         </tr>
       </thead>
-
       <tbody>
-        <tr
-          *ngFor="let customer of filteredCustomers; trackBy: trackByCustomerId"
-        >
-          <td>
-            <strong>{{ customer.name }}</strong>
+        <tr *ngFor="let customer of filteredCustomers; trackBy: trackByCustomerId">
+          <td class="name">{{ customer.name }}</td>
+          <td>{{ customer.phone || '—' }}</td>
+          <td>{{ customer.email || '—' }}</td>
+          <td class="num">KES {{ customer.creditLimit | number:'1.0-0' }}</td>
+          <td class="num" [class.due]="(customer.currentDue || 0) > 0">
+            KES {{ customer.currentDue || 0 | number:'1.0-0' }}
           </td>
-
           <td>
-            {{ customer.phone || '—' }}
-          </td>
-
-          <td>
-            {{ customer.email || '—' }}
-          </td>
-
-          <td>
-            KES {{ customer.creditLimit | number:'1.2-2' }}
-          </td>
-
-          <td
-            [class.due]="customer.currentDue > 0"
-            [class.paid]="customer.currentDue <= 0"
-          >
-            KES {{ customer.currentDue | number:'1.2-2' }}
-          </td>
-
-          <td>
-            <span
-              class="status"
-              [class.inactive]="!customer.isActive"
-            >
+            <span class="status" [class.active]="customer.isActive" [class.inactive]="!customer.isActive">
               {{ customer.isActive ? 'Active' : 'Inactive' }}
             </span>
           </td>
-
           <td class="actions">
-            <button
-              type="button"
-              class="secondary-button"
-              (click)="openEditForm(customer)"
-            >
-              Edit
+            <button type="button" class="icon-btn" title="Edit" (click)="openEditForm(customer)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
             </button>
-
-            <button
-              type="button"
-              class="danger-button"
-              (click)="deleteCustomer(customer)"
-            >
-              Delete
+            <button type="button" class="icon-btn danger" title="Delete" (click)="deleteCustomer(customer)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
             </button>
           </td>
         </tr>
-
         <tr *ngIf="filteredCustomers.length === 0">
-          <td colspan="7" class="no-results">
-            No customers match "{{ searchTerm }}".
-          </td>
+          <td colspan="7" class="empty">No customers found</td>
         </tr>
       </tbody>
     </table>
   </div>
-
-  <!-- Customer form -->
-  <div *ngIf="showForm" class="form-overlay">
-
-    <div class="form-card">
-
-      <div class="form-header">
-        <div>
-          <h2>
-            {{ editingCustomer ? 'Edit Customer' : 'Add Customer' }}
-          </h2>
-
-          <p>
-            {{
-              editingCustomer
-                ? 'Update customer information.'
-                : 'Create a new customer record.'
-            }}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          class="close-button"
-          (click)="closeForm()"
-        >
-          ×
-        </button>
-      </div>
-
-      <div class="form-body">
-
-        <label>
-          Customer Name
-          <input
-            type="text"
-            [(ngModel)]="form.name"
-            placeholder="Enter customer name"
-          />
-        </label>
-
-        <label>
-          Phone
-          <input
-            type="text"
-            [(ngModel)]="form.phone"
-            placeholder="e.g. 0712345678"
-          />
-        </label>
-
-        <label>
-          Email
-          <input
-            type="email"
-            [(ngModel)]="form.email"
-            placeholder="customer@example.com"
-          />
-        </label>
-
-        <label>
-          Address
-          <input
-            type="text"
-            [(ngModel)]="form.address"
-            placeholder="Customer address"
-          />
-        </label>
-
-        <label>
-          Credit Limit
-          <input
-            type="number"
-            min="0"
-            [(ngModel)]="form.creditLimit"
-          />
-        </label>
-
-      </div>
-
-      <div class="form-footer">
-        <button
-          type="button"
-          class="secondary-button"
-          (click)="closeForm()"
-        >
-          Cancel
-        </button>
-
-        <button
-          type="button"
-          class="primary-button"
-          [disabled]="!form.name.trim() || loading"
-          (click)="saveCustomer()"
-        >
-          {{ loading ? 'Saving...' : 'Save Customer' }}
-        </button>
-      </div>
-
-    </div>
-  </div>
-
 </div>
