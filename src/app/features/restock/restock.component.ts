@@ -59,6 +59,9 @@ export class RestockComponent implements OnInit {
     this.productService.getProducts().subscribe({
       next: (data) => {
         this.products = (data || []).filter((p: any) => p.isActive !== false);
+        if (this.form.productId) {
+          this.onProductChange();
+        }
         done();
       },
       error: (err) => {
@@ -90,6 +93,11 @@ export class RestockComponent implements OnInit {
     });
   }
 
+  isLow(product: any): boolean {
+    if (!product) return false;
+    return Number(product.currentStock) <= Number(product.minStockLevel);
+  }
+
   onProductChange() {
     this.selectedProduct =
       this.products.find((p) => p.id === this.form.productId) || null;
@@ -103,10 +111,8 @@ export class RestockComponent implements OnInit {
     this.syncAmountPaid();
   }
 
-  /** Default: pay full line total (cash restock). User can lower for credit. */
   private syncAmountPaid() {
-    const total = this.lineTotal;
-    this.form.amountPaid = total;
+    this.form.amountPaid = this.lineTotal;
   }
 
   get lineTotal(): number {
