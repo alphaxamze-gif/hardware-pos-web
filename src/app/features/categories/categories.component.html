@@ -58,7 +58,7 @@
           <th>Name</th>
           <th>Description</th>
           <th>Status</th>
-          <th>Actions</th>
+          <th class="th-actions">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -71,8 +71,32 @@
             </span>
           </td>
           <td class="actions">
-            <button type="button" class="btn-link" (click)="openEdit(category)">Edit</button>
-            <button type="button" class="btn-link danger" (click)="remove(category)">Delete</button>
+            <button
+              type="button"
+              class="icon-btn"
+              title="Edit"
+              aria-label="Edit category"
+              (click)="openEdit(category)"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="icon-btn danger"
+              title="Delete"
+              aria-label="Delete category"
+              (click)="remove(category)"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
+              </svg>
+            </button>
           </td>
         </tr>
         <tr *ngIf="filteredCategories.length === 0">
