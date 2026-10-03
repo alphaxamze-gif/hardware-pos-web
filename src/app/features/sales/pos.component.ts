@@ -84,6 +84,15 @@ export class PosComponent implements OnInit {
     });
   }
 
+  /** Refresh customers only (after credit sale, so due updates). */
+  reloadCustomers() {
+    this.customerService.getCustomers().subscribe({
+      next: (data) => {
+        this.customers = data || [];
+      },
+    });
+  }
+
   applySearch() {
     const t = this.search.toLowerCase().trim();
     if (!t) {
@@ -125,7 +134,6 @@ export class PosComponent implements OnInit {
     this.syncPaid();
   }
 
-  /** Force quantity to an integer between 1 and maxStock. */
   setQty(line: CartLine, raw: unknown) {
     let q = Math.floor(Number(raw));
     if (!Number.isFinite(q) || q < 1) {
@@ -169,9 +177,20 @@ export class PosComponent implements OnInit {
     this.syncPaid();
   }
 
+  /**
+   * CASH → amount paid = full total (no due).
+   * CREDIT → amount paid defaults to 0 so unpaid balance becomes customer.currentDue.
+   * Partial credit: user may enter a deposit in amount paid.
+   */
   private syncPaid() {
     if (this.paymentMethod === 'CASH') {
       this.amountPaid = this.total;
+    } else if (this.paymentMethod === 'CREDIT') {
+      // Only reset to 0 when switching into credit or when paid still equals full total
+      // (leftover from cash mode). Keep a deliberate partial deposit if user typed one.
+      if (this.amountPaid >= this.total || this.amountPaid < 0) {
+        this.amountPaid = 0;
+      }
     }
   }
 
@@ -180,9 +199,7 @@ export class PosComponent implements OnInit {
     if (!Number.isFinite(d) || d < 0) {
       this.discount = 0;
     }
-    if (this.paymentMethod === 'CASH') {
-      this.amountPaid = this.total;
-    }
+    this.syncPaid();
   }
 
   completeSale() {
@@ -194,7 +211,6 @@ export class PosComponent implements OnInit {
       return;
     }
 
-    // Sanitize every line before send — never trust the input box alone
     for (const line of this.cart) {
       let q = Math.floor(Number(line.quantity));
       if (!Number.isFinite(q) || q < 1) {
@@ -221,6 +237,14 @@ export class PosComponent implements OnInit {
       this.error = 'Select a customer for credit sales';
       return;
     }
+
+    // Credit with full payment is allowed but creates 0 due — warn so user understands
+    if (this.paymentMethod === 'CREDIT' && this.due <= 0) {
+      this.error =
+        'Credit sale needs an unpaid balance. Set Amount paid below total (e.g. 0 for full credit).';
+      return;
+    }
+
     if (this.paymentMethod === 'CASH' && this.amountPaid < this.total) {
       this.error = 'Cash sale must be fully paid';
       return;
@@ -249,11 +273,16 @@ export class PosComponent implements OnInit {
       .subscribe({
         next: (sale) => {
           this.submitting = false;
-          this.success = `Sale completed — KES ${Number(sale.totalAmount || this.total).toLocaleString()}`;
+          const dueMsg =
+            this.paymentMethod === 'CREDIT' && this.due > 0
+              ? ` — on account KES ${this.due.toLocaleString()}`
+              : '';
+          this.success = `Sale completed — KES ${Number(sale.totalAmount || this.total).toLocaleString()}${dueMsg}`;
           this.clearCart();
           this.paymentMethod = 'CASH';
           this.customerId = '';
           this.load();
+          this.reloadCustomers();
         },
         error: (err) => {
           this.submitting = false;
