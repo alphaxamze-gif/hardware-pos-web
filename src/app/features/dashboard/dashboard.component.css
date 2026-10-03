@@ -1,93 +1,273 @@
 .dashboard {
   width: 100%;
-  max-width: none;
   min-width: 0;
 }
 
 .page-header {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .page-header h1 {
   margin: 0;
   font-size: clamp(22px, 4vw, 26px);
   font-weight: 700;
-  color: var(--text);
+  color: var(--text, #0f172a);
 }
 
 .subtitle {
   margin: 6px 0 0;
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--text-muted, #64748b);
 }
 
 .state {
   padding: 48px 16px;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text-muted, #64748b);
   font-size: 15px;
 }
 
 .state.error {
-  color: var(--danger);
+  color: #dc2626;
 }
 
-.stats-grid {
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: -0.02em;
+}
+
+/* Primary — surface + single flat accent edge */
+.metric-primary {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-left: 4px solid #1e3a5f;
+  border-radius: 10px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+
+.period-chip {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: #1e3a5f;
+  color: #fff;
+}
+
+/* Soft period: outline only — no solid white fill */
+.period-chip.soft {
+  background: transparent;
+  border: 1px solid var(--border, #cbd5e1);
+  color: #64748b;
+}
+
+.primary-label {
+  margin: 12px 0 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted, #64748b);
+}
+
+.primary-value {
+  font-size: clamp(28px, 5vw, 36px);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text, #0f172a);
+}
+
+.primary-value .currency {
+  font-size: 0.5em;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  margin-right: 6px;
+}
+
+.metrics-secondary {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
-  gap: 16px;
-  width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 12px;
 }
 
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius, 10px);
-  padding: 18px 20px;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+.metric-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  padding: 14px 16px;
   min-width: 0;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
-
-.stat-card.alert {
-  border-color: #fde68a;
-  background: #fffbeb;
-}
-
-body.dark-theme .stat-card.alert {
-  background: rgba(245, 158, 11, 0.08);
-  border-color: rgba(245, 158, 11, 0.3);
-}
-
-.card-top {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  flex-direction: column;
   gap: 8px;
 }
 
-.label {
+.metric-card.is-alert {
+  border-color: #f59e0b;
+}
+
+.metric-label {
+  margin: 0;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--text-muted, #64748b);
 }
 
-.value {
-  font-size: clamp(20px, 3.5vw, 24px);
+/* Value shape: tinted, never pure white in dark mode */
+.metric-value-wrap {
+  display: inline-flex;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: rgba(30, 58, 95, 0.06);
+  border: 1px solid transparent;
+}
+
+.metric-value {
+  font-size: 17px;
   font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.02em;
-  word-break: break-word;
+  color: var(--text, #0f172a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-@media (max-width: 600px) {
-  .stats-grid {
+.tone-success {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: rgba(22, 163, 74, 0.2);
+}
+.tone-success .metric-value {
+  color: #15803d;
+}
+
+.tone-warning {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+.tone-warning .metric-value {
+  color: #b45309;
+}
+
+.tone-danger {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.2);
+}
+.tone-danger .metric-value {
+  color: #b91c1c;
+}
+
+.tone-neutral {
+  background: rgba(30, 58, 95, 0.06);
+  border-color: rgba(30, 58, 95, 0.1);
+}
+
+/* ——— Dark mode (body.dark-theme) ——— */
+body.dark-theme .page-header h1 {
+  color: #e2e8f0;
+}
+
+body.dark-theme .subtitle {
+  color: #7dd3fc;
+}
+
+body.dark-theme .metric-primary {
+  background: #132337;
+  border-color: #1e3a5f;
+  border-left-color: #38bdf8;
+}
+
+body.dark-theme .period-chip {
+  background: #0c4a6e;
+  color: #bae6fd;
+}
+
+body.dark-theme .period-chip.soft {
+  background: transparent;
+  border-color: #334155;
+  color: #7dd3fc;
+}
+
+body.dark-theme .primary-label,
+body.dark-theme .metric-label {
+  color: #7dd3fc;
+}
+
+body.dark-theme .primary-value {
+  color: #f1f5f9;
+}
+
+body.dark-theme .primary-value .currency {
+  color: #7dd3fc;
+}
+
+body.dark-theme .metric-card {
+  background: #132337;
+  border-color: #1e3a5f;
+}
+
+body.dark-theme .metric-card.is-alert {
+  border-color: #f59e0b;
+  background: #1a2332;
+}
+
+body.dark-theme .metric-value-wrap {
+  background: rgba(125, 211, 252, 0.08);
+  border-color: rgba(125, 211, 252, 0.15);
+}
+
+body.dark-theme .metric-value {
+  color: #e0f2fe;
+}
+
+body.dark-theme .tone-success {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.25);
+}
+body.dark-theme .tone-success .metric-value {
+  color: #4ade80;
+}
+
+body.dark-theme .tone-warning {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+body.dark-theme .tone-warning .metric-value {
+  color: #fbbf24;
+}
+
+body.dark-theme .tone-danger {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.25);
+}
+body.dark-theme .tone-danger .metric-value {
+  color: #f87171;
+}
+
+body.dark-theme .tone-neutral {
+  background: rgba(125, 211, 252, 0.08);
+  border-color: rgba(125, 211, 252, 0.15);
+}
+body.dark-theme .tone-neutral .metric-value {
+  color: #bae6fd;
+}
+
+@media (max-width: 640px) {
+  .metrics-secondary {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .metric-value {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 400px) {
+  .metrics-secondary {
     grid-template-columns: 1fr;
-    gap: 12px;
   }
 }
