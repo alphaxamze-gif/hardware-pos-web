@@ -34,6 +34,18 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'restock',
+        loadComponent: () =>
+          import('./features/restock/restock.component').then(
+            (m) => m.RestockComponent
+          ),
+      },
+      {
+        path: 'purchases',
+        redirectTo: 'restock',
+        pathMatch: 'full',
+      },
+      {
         path: 'users',
         loadComponent: () =>
           import('./features/users/users.component').then(

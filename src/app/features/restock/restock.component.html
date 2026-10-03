@@ -1,0 +1,139 @@
+<div class="restock-page">
+  <div class="page-header">
+    <div>
+      <h1>Restock</h1>
+      <p class="subtitle">Receive stock via purchase — increases inventory and supplier records</p>
+    </div>
+  </div>
+
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+  <div class="alert success" *ngIf="success">{{ success }}</div>
+
+  <div *ngIf="loading" class="state">Loading…</div>
+
+  <div class="layout-grid" *ngIf="!loading">
+    <section class="card form-card">
+      <h2>New restock</h2>
+
+      <div class="form-grid">
+        <label class="full">
+          Product *
+          <select
+            [(ngModel)]="form.productId"
+            name="productId"
+            (ngModelChange)="onProductChange()"
+          >
+            <option value="">Select product…</option>
+            <option *ngFor="let p of products" [value]="p.id">
+              {{ p.name }} — stock {{ p.currentStock }} {{ p.unit }}
+            </option>
+          </select>
+        </label>
+
+        <div class="stock-box full" *ngIf="selectedProduct">
+          <span class="stock-label">Current stock</span>
+          <span class="stock-value num">
+            {{ selectedProduct.currentStock }} {{ selectedProduct.unit }}
+          </span>
+          <span class="stock-meta" *ngIf="isLow(selectedProduct)">Low stock</span>
+        </div>
+
+        <label>
+          Quantity *
+          <input
+            type="number"
+            min="1"
+            step="1"
+            [(ngModel)]="form.quantity"
+            name="quantity"
+            (ngModelChange)="onQtyOrCostChange()"
+          />
+        </label>
+
+        <label>
+          Unit cost (KES) *
+          <input
+            type="number"
+            min="0.01"
+            step="0.01"
+            [(ngModel)]="form.unitCost"
+            name="unitCost"
+            (ngModelChange)="onQtyOrCostChange()"
+          />
+        </label>
+
+        <label class="full">
+          Supplier
+          <select [(ngModel)]="form.supplierId" name="supplierId">
+            <option value="">Auto-create “General Stock Supplier” if empty</option>
+            <option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</option>
+          </select>
+        </label>
+
+        <label>
+          Amount paid (KES)
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="form.amountPaid"
+            name="amountPaid"
+          />
+        </label>
+
+        <label>
+          Supplier invoice #
+          <input type="text" [(ngModel)]="form.invoiceNumber" name="invoiceNumber" />
+        </label>
+
+        <label class="full">
+          Notes
+          <input type="text" [(ngModel)]="form.notes" name="notes" placeholder="Optional" />
+        </label>
+      </div>
+
+      <div class="totals">
+        <div class="total-row">
+          <span>Line total</span>
+          <strong class="num">KES {{ lineTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div class="total-row" *ngIf="remainingDue > 0">
+          <span>Supplier due (credit)</span>
+          <strong class="num due">KES {{ remainingDue | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <p class="hint">
+        Stock is never edited on the product form. Restock records a purchase so inventory stays auditable.
+      </p>
+
+      <div class="form-actions">
+        <button type="button" class="btn-primary" (click)="submit()" [disabled]="saving">
+          {{ saving ? 'Recording…' : 'Confirm restock' }}
+        </button>
+      </div>
+    </section>
+
+    <section class="card history-card">
+      <h2>Recent restocks</h2>
+      <div *ngIf="history.length === 0" class="state small">No purchases yet</div>
+      <ul class="history-list" *ngIf="history.length > 0">
+        <li *ngFor="let h of history">
+          <div class="hist-top">
+            <strong>{{ h.supplier?.name || 'Supplier' }}</strong>
+            <span class="num">KES {{ h.totalAmount | number:'1.0-0' }}</span>
+          </div>
+          <div class="hist-meta">
+            <span>{{ h.createdAt | date:'mediumDate' }}</span>
+            <span *ngIf="h.invoiceNumber">#{{ h.invoiceNumber }}</span>
+          </div>
+          <div class="hist-items" *ngIf="h.items?.length">
+            <span *ngFor="let it of h.items">
+              {{ it.product?.name || 'Item' }} × {{ it.quantity }}
+            </span>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>
