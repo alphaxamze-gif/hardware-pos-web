@@ -23,7 +23,7 @@
 .subtitle {
   margin: 6px 0 0;
   font-size: 14px;
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted, #4b6b82);
 }
 
 .btn-primary {
@@ -49,7 +49,7 @@
 
 .btn-secondary {
   background: transparent;
-  border: 1px solid var(--border, #e2e8f0);
+  border: 1px solid var(--border, #c5dff0);
   border-radius: 8px;
   padding: 10px 16px;
   cursor: pointer;
@@ -65,7 +65,7 @@
   height: 32px;
   margin-right: 4px;
   padding: 0;
-  border: 1px solid var(--border, #e2e8f0);
+  border: 1px solid var(--border, #c5dff0);
   border-radius: 8px;
   background: transparent;
   color: #1e3a5f;
@@ -105,8 +105,8 @@
 }
 
 .card {
-  background: var(--surface, #fff);
-  border: 1px solid var(--border, #e2e8f0);
+  background: var(--surface, #f0f9ff);
+  border: 1px solid var(--border, #c5dff0);
   border-radius: 10px;
   padding: 16px 18px;
   margin-bottom: 16px;
@@ -131,7 +131,7 @@
   gap: 6px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted, #4b6b82);
 }
 
 .form-grid label.full {
@@ -141,16 +141,16 @@
 .form-grid input,
 .form-grid select {
   padding: 10px 12px;
-  border: 1px solid var(--border, #e2e8f0);
+  border: 1px solid var(--border, #c5dff0);
   border-radius: 8px;
   font-size: 0.95rem;
   color: var(--text, #0f172a);
-  background: var(--surface, #fff);
+  background: #f8fbfe;
 }
 
 .form-grid input:disabled {
-  background: #f1f5f9;
-  color: var(--text-muted, #64748b);
+  background: #e2eef6;
+  color: var(--text-muted, #4b6b82);
 }
 
 .form-actions {
@@ -161,7 +161,7 @@
 .hint {
   margin: 0 0 12px;
   font-size: 0.9rem;
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted, #4b6b82);
 }
 
 .toolbar {
@@ -174,14 +174,14 @@
   gap: 10px;
   width: 100%;
   max-width: 420px;
-  background: var(--surface, #fff);
-  border: 1px solid var(--border, #e2e8f0);
+  background: var(--surface, #f0f9ff);
+  border: 1px solid var(--border, #c5dff0);
   border-radius: 8px;
   padding: 10px 14px;
 }
 
 .search-box svg {
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted, #4b6b82);
   flex-shrink: 0;
 }
 
@@ -197,13 +197,13 @@
 .state {
   padding: 40px 16px;
   text-align: center;
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted, #4b6b82);
 }
 
 .table-card {
   width: 100%;
-  background: var(--surface, #fff);
-  border: 1px solid var(--border, #e2e8f0);
+  background: var(--surface, #f0f9ff);
+  border: 1px solid var(--border, #c5dff0);
   border-radius: 10px;
   overflow-x: auto;
 }
@@ -215,7 +215,7 @@ table {
 }
 
 thead {
-  background: #f1f5f9;
+  background: #dbeaf5;
 }
 
 th {
@@ -223,10 +223,10 @@ th {
   padding: 12px 14px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-muted, #64748b);
+  color: #3d5a73;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-bottom: 1px solid var(--border, #e2e8f0);
+  border-bottom: 1px solid var(--border, #c5dff0);
   white-space: nowrap;
 }
 
@@ -234,11 +234,15 @@ td {
   padding: 12px 14px;
   font-size: 14px;
   color: var(--text, #0f172a);
-  border-bottom: 1px solid var(--border, #e2e8f0);
+  border-bottom: 1px solid var(--border, #c5dff0);
 }
 
 tbody tr:last-child td {
   border-bottom: none;
+}
+
+tbody tr:hover {
+  background: rgba(125, 211, 252, 0.12);
 }
 
 .product-name {
@@ -248,7 +252,7 @@ tbody tr:last-child td {
 .mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 13px;
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted, #4b6b82);
 }
 
 .price {
@@ -262,7 +266,7 @@ tbody tr:last-child td {
 }
 
 tr.low-stock {
-  background: #fffbeb;
+  background: #fff8eb;
 }
 
 .status {
@@ -294,7 +298,7 @@ tr.low-stock {
 .empty {
   text-align: center;
   padding: 40px 16px !important;
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted, #4b6b82);
 }
 
 /* ——— Dark mode ——— */
@@ -366,23 +370,25 @@ body.dark-theme .search-box svg {
   color: #7dd3fc;
 }
 
+/* Edit icon — white in dark mode */
 body.dark-theme .icon-btn {
-  border-color: #334155;
-  color: #7dd3fc;
+  border-color: #475569;
+  color: #ffffff;
 }
 
 body.dark-theme .icon-btn:hover {
-  background: rgba(125, 211, 252, 0.1);
-  color: #bae6fd;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 body.dark-theme .icon-btn.danger {
   color: #f87171;
-  border-color: rgba(248, 113, 113, 0.4);
+  border-color: rgba(248, 113, 113, 0.45);
 }
 
 body.dark-theme .icon-btn.danger:hover {
   background: rgba(248, 113, 113, 0.12);
+  color: #fca5a5;
 }
 
 body.dark-theme .status.ok {

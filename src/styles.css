@@ -13,12 +13,13 @@
   --warning: #f59e0b;
   --danger: #dc2626;
 
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --border: #e2e8f0;
+  /* Soft baby-blue light mode — avoid harsh pure white */
+  --bg: #e8f4fc;
+  --surface: #f0f9ff;
+  --border: #c5dff0;
 
   --text: #0f172a;
-  --text-muted: #64748b;
+  --text-muted: #4b6b82;
 
   --sidebar-bg: #1e3a5f;
   --sidebar-text: #f1f5f9;
@@ -35,7 +36,7 @@
   --sidebar-width: 260px;
   --topbar-height: 60px;
   --radius: 10px;
-  --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  --shadow: 0 4px 14px rgba(30, 58, 95, 0.08);
 }
 
 body.dark-theme {
@@ -43,7 +44,7 @@ body.dark-theme {
   --surface: #1e293b;
   --border: #334155;
   --text: #f1f5f9;
-  --text-muted: #94a3b8;
+  --text-muted: #7dd3fc;
   --sidebar-bg: #020617;
   --topbar-bg: #020617;
   --topbar-border: #1e293b;
@@ -69,15 +70,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Utility: full-width page shells for feature modules */
 .page-shell {
   width: 100%;
   max-width: none;
   min-width: 0;
 }
 
-/* Images only — never apply max-width:100% to ALL svgs.
-   That rule made sidebar nav icons expand to full sidebar width. */
 img {
   max-width: 100%;
   height: auto;
