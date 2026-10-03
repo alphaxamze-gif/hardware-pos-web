@@ -56,9 +56,11 @@
               <input
                 type="number"
                 min="1"
+                step="1"
                 [max]="line.maxStock"
                 [ngModel]="line.quantity"
                 (ngModelChange)="setQty(line, $event)"
+                (blur)="setQty(line, line.quantity)"
               />
             </label>
             <span class="line-total num">
@@ -89,12 +91,12 @@
 
         <label>
           Discount (KES)
-          <input type="number" min="0" [(ngModel)]="discount" (ngModelChange)="onDiscountChange()" />
+          <input type="number" min="0" step="1" [(ngModel)]="discount" (ngModelChange)="onDiscountChange()" />
         </label>
 
         <label>
           Amount paid (KES)
-          <input type="number" min="0" [(ngModel)]="amountPaid" [disabled]="paymentMethod === 'CASH'" />
+          <input type="number" min="0" step="1" [(ngModel)]="amountPaid" [disabled]="paymentMethod === 'CASH'" />
         </label>
 
         <label>

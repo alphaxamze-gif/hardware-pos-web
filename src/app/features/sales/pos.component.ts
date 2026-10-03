@@ -125,17 +125,19 @@ export class PosComponent implements OnInit {
     this.syncPaid();
   }
 
-  setQty(line: CartLine, qty: number) {
-    const q = Math.floor(Number(qty));
-    if (!q || q < 1) {
-      line.quantity = 1;
+  /** Force quantity to an integer between 1 and maxStock. */
+  setQty(line: CartLine, raw: unknown) {
+    let q = Math.floor(Number(raw));
+    if (!Number.isFinite(q) || q < 1) {
+      q = 1;
+      this.error = 'Quantity must be at least 1';
     } else if (q > line.maxStock) {
-      line.quantity = line.maxStock;
+      q = line.maxStock;
       this.error = `Max stock for ${line.name}: ${line.maxStock}`;
     } else {
-      line.quantity = q;
       this.error = '';
     }
+    line.quantity = q;
     this.syncPaid();
   }
 
@@ -174,6 +176,10 @@ export class PosComponent implements OnInit {
   }
 
   onDiscountChange() {
+    const d = Number(this.discount);
+    if (!Number.isFinite(d) || d < 0) {
+      this.discount = 0;
+    }
     if (this.paymentMethod === 'CASH') {
       this.amountPaid = this.total;
     }
@@ -187,12 +193,30 @@ export class PosComponent implements OnInit {
       this.error = 'Add at least one product';
       return;
     }
+
+    // Sanitize every line before send — never trust the input box alone
     for (const line of this.cart) {
-      if (line.quantity <= 0 || line.unitPrice <= 0) {
-        this.error = 'Each line needs quantity and price greater than 0';
+      let q = Math.floor(Number(line.quantity));
+      if (!Number.isFinite(q) || q < 1) {
+        this.error = `Invalid quantity for ${line.name}. Must be at least 1.`;
+        line.quantity = 1;
         return;
       }
+      if (q > line.maxStock) {
+        this.error = `Quantity for ${line.name} exceeds stock (${line.maxStock})`;
+        line.quantity = line.maxStock;
+        return;
+      }
+      line.quantity = q;
+
+      const price = Number(line.unitPrice);
+      if (!Number.isFinite(price) || price <= 0) {
+        this.error = `Invalid unit price for ${line.name}`;
+        return;
+      }
+      line.unitPrice = price;
     }
+
     if (this.paymentMethod === 'CREDIT' && !this.customerId) {
       this.error = 'Select a customer for credit sales';
       return;
@@ -212,9 +236,9 @@ export class PosComponent implements OnInit {
       .createSale({
         customerId: this.customerId || undefined,
         notes: this.notes.trim() || undefined,
-        discount: Number(this.discount) || 0,
+        discount: Math.max(0, Number(this.discount) || 0),
         taxAmount: 0,
-        amountPaid: Number(this.amountPaid) || 0,
+        amountPaid: Math.max(0, Number(this.amountPaid) || 0),
         paymentMethod: this.paymentMethod,
         items: this.cart.map((l) => ({
           productId: l.productId,
