@@ -50,7 +50,6 @@
   display: inline-block;
   padding: 0;
   border: none;
-  border-radius: 0;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -173,12 +172,7 @@
   border-left-color: #38bdf8;
 }
 
-:host-context(body.dark-theme) .period-chip {
-  background: transparent;
-  border: none;
-  color: #7dd3fc;
-}
-
+:host-context(body.dark-theme) .period-chip,
 :host-context(body.dark-theme) .period-chip.soft {
   background: transparent;
   border: none;

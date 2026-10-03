@@ -1,5 +1,4 @@
 <div class="layout">
-  <!-- Mobile dim overlay -->
   <button
     *ngIf="isMobile && isSidebarOpen"
     type="button"
@@ -8,7 +7,6 @@
     aria-label="Close menu"
   ></button>
 
-  <!-- ========== SIDEBAR ========== -->
   <aside
     class="sidebar"
     [class.is-collapsed]="!isMobile && !isSidebarOpen"
@@ -76,12 +74,12 @@
           </svg>
           <span>Categories</span>
         </a>
-        <a routerLink="/purchases" routerLinkActive="active" class="nav-item">
+        <a routerLink="/restock" routerLinkActive="active" class="nav-item">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
             <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
-          <span>Purchases</span>
+          <span>Restock</span>
         </a>
       </div>
 
@@ -130,7 +128,6 @@
         </a>
       </div>
 
-      <!-- Staff accounts — ADMIN only (not Customers) -->
       <div class="nav-section" *ngIf="user?.role === 'ADMIN'">
         <div class="nav-label">Admin</div>
         <a routerLink="/users" routerLinkActive="active" class="nav-item">
@@ -157,7 +154,6 @@
     </div>
   </aside>
 
-  <!-- ========== MAIN ========== -->
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
