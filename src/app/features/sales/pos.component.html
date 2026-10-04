@@ -29,10 +29,21 @@
           *ngFor="let p of filteredProducts"
           (click)="addToCart(p)"
         >
-          <div class="p-name">{{ p.name }}</div>
-          <div class="p-meta">
-            <span>{{ p.currentStock }} {{ p.unit }}</span>
-            <span class="p-price num">KES {{ p.sellingPrice | number:'1.0-0' }}</span>
+          <div class="thumb">
+            <img
+              *ngIf="p.imageUrl"
+              [src]="p.imageUrl"
+              [alt]="p.name"
+              (error)="onImageError($event)"
+            />
+            <span class="thumb-fallback" *ngIf="!p.imageUrl">{{ p.name?.charAt(0) || '?' }}</span>
+          </div>
+          <div class="p-body">
+            <div class="p-name">{{ p.name }}</div>
+            <div class="p-meta">
+              <span>{{ p.currentStock }} {{ p.unit }}</span>
+              <span class="p-price num">KES {{ p.sellingPrice | number:'1.0-0' }}</span>
+            </div>
           </div>
         </button>
         <div class="empty" *ngIf="filteredProducts.length === 0">No products match</div>
@@ -47,7 +58,18 @@
       <ul class="cart-lines" *ngIf="cart.length > 0">
         <li *ngFor="let line of cart">
           <div class="line-top">
-            <strong>{{ line.name }}</strong>
+            <div class="line-identity">
+              <div class="thumb sm">
+                <img
+                  *ngIf="line.imageUrl"
+                  [src]="line.imageUrl"
+                  [alt]="line.name"
+                  (error)="onImageError($event)"
+                />
+                <span class="thumb-fallback" *ngIf="!line.imageUrl">{{ line.name?.charAt(0) || '?' }}</span>
+              </div>
+              <strong>{{ line.name }}</strong>
+            </div>
             <button type="button" class="link-danger" (click)="removeLine(line.productId)">Remove</button>
           </div>
           <div class="line-controls">

@@ -12,6 +12,7 @@ interface CartLine {
   unitPrice: number;
   quantity: number;
   maxStock: number;
+  imageUrl?: string | null;
 }
 
 @Component({
@@ -74,7 +75,7 @@ export class PosComponent implements OnInit {
 
     this.customerService.getCustomers().subscribe({
       next: (data) => {
-        this.customers = data || [];
+        this.customers = (data || []).filter((c: any) => c.isActive !== false);
         done();
       },
       error: () => {
@@ -84,11 +85,10 @@ export class PosComponent implements OnInit {
     });
   }
 
-  /** Refresh customers only (after credit sale, so due updates). */
   reloadCustomers() {
     this.customerService.getCustomers().subscribe({
       next: (data) => {
-        this.customers = data || [];
+        this.customers = (data || []).filter((c: any) => c.isActive !== false);
       },
     });
   }
@@ -105,6 +105,11 @@ export class PosComponent implements OnInit {
         p.sku?.toLowerCase().includes(t) ||
         p.category?.name?.toLowerCase().includes(t)
     );
+  }
+
+  onImageError(event: Event) {
+    const el = event.target as HTMLImageElement;
+    el.style.display = 'none';
   }
 
   addToCart(product: any) {
@@ -129,6 +134,7 @@ export class PosComponent implements OnInit {
         unitPrice: Number(product.sellingPrice) || 0,
         quantity: 1,
         maxStock: stock,
+        imageUrl: product.imageUrl || null,
       });
     }
     this.syncPaid();
@@ -177,17 +183,10 @@ export class PosComponent implements OnInit {
     this.syncPaid();
   }
 
-  /**
-   * CASH → amount paid = full total (no due).
-   * CREDIT → amount paid defaults to 0 so unpaid balance becomes customer.currentDue.
-   * Partial credit: user may enter a deposit in amount paid.
-   */
   private syncPaid() {
     if (this.paymentMethod === 'CASH') {
       this.amountPaid = this.total;
     } else if (this.paymentMethod === 'CREDIT') {
-      // Only reset to 0 when switching into credit or when paid still equals full total
-      // (leftover from cash mode). Keep a deliberate partial deposit if user typed one.
       if (this.amountPaid >= this.total || this.amountPaid < 0) {
         this.amountPaid = 0;
       }
@@ -238,7 +237,6 @@ export class PosComponent implements OnInit {
       return;
     }
 
-    // Credit with full payment is allowed but creates 0 due — warn so user understands
     if (this.paymentMethod === 'CREDIT' && this.due <= 0) {
       this.error =
         'Credit sale needs an unpaid balance. Set Amount paid below total (e.g. 0 for full credit).';
