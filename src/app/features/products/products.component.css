@@ -139,7 +139,8 @@
   color: var(--text-muted, #4b6b82);
 }
 
-.form-grid label.full {
+.form-grid label.full,
+.form-grid .full {
   grid-column: 1 / -1;
 }
 
@@ -158,6 +159,26 @@
   color: var(--text-muted, #4b6b82);
 }
 
+.image-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted, #4b6b82);
+}
+
+.image-preview img {
+  max-width: 160px;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border, #c5dff0);
+}
+
 .form-actions {
   display: flex;
   gap: 10px;
@@ -171,6 +192,20 @@
 
 .toolbar {
   margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.show-inactive {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-muted, #4b6b82);
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .search-box {
@@ -215,7 +250,7 @@
 
 table {
   width: 100%;
-  min-width: 780px;
+  min-width: 820px;
   border-collapse: collapse;
 }
 
@@ -235,11 +270,44 @@ th {
   white-space: nowrap;
 }
 
+.th-img {
+  width: 52px;
+}
+
 td {
   padding: 12px 14px;
   font-size: 14px;
   color: var(--text, #0f172a);
   border-bottom: 1px solid var(--border, #c5dff0);
+}
+
+.td-img {
+  width: 52px;
+  padding-right: 4px;
+}
+
+.thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #dbeaf5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-fallback {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e3a5f;
+  text-transform: uppercase;
 }
 
 tbody tr:last-child td {
@@ -292,6 +360,11 @@ tr.low-stock {
   color: #b45309;
 }
 
+.status.inactive {
+  background: rgba(100, 116, 139, 0.15);
+  color: #64748b;
+}
+
 .actions {
   white-space: nowrap;
 }
@@ -306,7 +379,6 @@ tr.low-stock {
   color: var(--text-muted, #4b6b82);
 }
 
-/* Dark mode — :host-context required (Angular encapsulation) */
 :host-context(body.dark-theme) .page-header h1 {
   color: #e2e8f0;
 }
@@ -314,7 +386,9 @@ tr.low-stock {
 :host-context(body.dark-theme) .subtitle,
 :host-context(body.dark-theme) .hint,
 :host-context(body.dark-theme) .state,
-:host-context(body.dark-theme) .empty {
+:host-context(body.dark-theme) .empty,
+:host-context(body.dark-theme) .show-inactive,
+:host-context(body.dark-theme) .preview-label {
   color: #7dd3fc;
 }
 
@@ -359,6 +433,14 @@ tr.low-stock {
   background: #0f1c2e;
 }
 
+:host-context(body.dark-theme) .thumb {
+  background: #0f1c2e;
+}
+
+:host-context(body.dark-theme) .thumb-fallback {
+  color: #7dd3fc;
+}
+
 :host-context(body.dark-theme) tbody tr:hover {
   background: rgba(125, 211, 252, 0.05);
 }
@@ -384,11 +466,6 @@ tr.low-stock {
   stroke: #ffffff;
 }
 
-:host-context(body.dark-theme) .icon-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-}
-
 :host-context(body.dark-theme) .icon-btn.danger {
   color: #f87171;
   border-color: rgba(248, 113, 113, 0.45);
@@ -396,11 +473,6 @@ tr.low-stock {
 
 :host-context(body.dark-theme) .icon-btn.danger svg {
   stroke: #f87171;
-}
-
-:host-context(body.dark-theme) .icon-btn.danger:hover {
-  background: rgba(248, 113, 113, 0.12);
-  color: #fca5a5;
 }
 
 :host-context(body.dark-theme) .status.ok {
@@ -411,6 +483,11 @@ tr.low-stock {
 :host-context(body.dark-theme) .status.warning {
   background: rgba(245, 158, 11, 0.15);
   color: #fbbf24;
+}
+
+:host-context(body.dark-theme) .status.inactive {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
 }
 
 :host-context(body.dark-theme) .alert.error {

@@ -20,7 +20,6 @@ export class ProductsComponent implements OnInit {
   error = '';
   success = '';
   searchTerm = '';
-  /** Default false = soft-deleted products leave the main list */
   showInactive = false;
 
   showForm = false;
@@ -37,6 +36,7 @@ export class ProductsComponent implements OnInit {
     currentStock: 0,
     minStockLevel: 0,
     unit: 'PIECE',
+    imageUrl: '',
   };
 
   units = ['PIECE', 'BAG', 'KG', 'METER', 'FOOT', 'LITER', 'BOX', 'SET', 'TONNE'];
@@ -95,7 +95,6 @@ export class ProductsComponent implements OnInit {
   applyFilters() {
     let list = this.products;
 
-    // Soft-deleted leave the main list unless ADMIN/MANAGER toggles them on
     if (!this.showInactive) {
       list = list.filter((p) => p.isActive !== false);
     }
@@ -125,6 +124,11 @@ export class ProductsComponent implements OnInit {
     return Number(product.currentStock) <= Number(product.minStockLevel);
   }
 
+  onImageError(event: Event) {
+    const el = event.target as HTMLImageElement;
+    el.style.display = 'none';
+  }
+
   openCreate() {
     this.editingId = null;
     this.showForm = true;
@@ -140,6 +144,7 @@ export class ProductsComponent implements OnInit {
       currentStock: 0,
       minStockLevel: 0,
       unit: 'PIECE',
+      imageUrl: '',
     };
   }
 
@@ -158,6 +163,7 @@ export class ProductsComponent implements OnInit {
       currentStock: product.currentStock ?? 0,
       minStockLevel: product.minStockLevel ?? 0,
       unit: product.unit || 'PIECE',
+      imageUrl: product.imageUrl || '',
     };
   }
 
@@ -183,7 +189,15 @@ export class ProductsComponent implements OnInit {
       return;
     }
 
+    const imageUrl = this.form.imageUrl.trim();
+    if (imageUrl && !/^https?:\/\//i.test(imageUrl)) {
+      this.error = 'Image URL must start with http:// or https://';
+      return;
+    }
+
     this.saving = true;
+
+    const imagePayload = imageUrl || null;
 
     if (this.editingId) {
       this.productService
@@ -196,6 +210,7 @@ export class ProductsComponent implements OnInit {
           sellingPrice: Number(this.form.sellingPrice),
           minStockLevel: Number(this.form.minStockLevel) || 0,
           unit: this.form.unit as any,
+          imageUrl: imagePayload,
         })
         .subscribe({
           next: () => {
@@ -224,6 +239,7 @@ export class ProductsComponent implements OnInit {
         currentStock: Number(this.form.currentStock) || 0,
         minStockLevel: Number(this.form.minStockLevel) || 0,
         unit: this.form.unit as any,
+        imageUrl: imagePayload,
       })
       .subscribe({
         next: () => {

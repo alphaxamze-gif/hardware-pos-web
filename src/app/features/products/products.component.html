@@ -58,9 +58,25 @@
       </label>
       <label class="full">
         Description
-        <input type="text" [(ngModel)]="form.description" name="description" />
+        <input type="text" [(ngModel)]="form.description" name="description" placeholder="e.g. Portland cement 50kg bag" />
       </label>
+      <label class="full">
+        Image URL (optional)
+        <input
+          type="url"
+          [(ngModel)]="form.imageUrl"
+          name="imageUrl"
+          placeholder="https://…"
+        />
+      </label>
+      <div class="image-preview full" *ngIf="form.imageUrl.trim()">
+        <span class="preview-label">Preview</span>
+        <img [src]="form.imageUrl" alt="Preview" (error)="onImageError($event)" />
+      </div>
     </div>
+    <p class="hint">
+      Image is optional. Paste a public photo link (http/https). File upload comes in a later phase.
+    </p>
     <p class="hint" *ngIf="editingId">
       Stock is system-managed via Restock. Remove hides the product from this list; sales history is kept.
     </p>
@@ -103,6 +119,7 @@
     <table>
       <thead>
         <tr>
+          <th class="th-img"></th>
           <th>Product</th>
           <th>SKU</th>
           <th>Category</th>
@@ -119,6 +136,17 @@
           [class.low-stock]="product.isActive !== false && isLowStock(product)"
           [class.inactive-row]="product.isActive === false"
         >
+          <td class="td-img">
+            <div class="thumb">
+              <img
+                *ngIf="product.imageUrl"
+                [src]="product.imageUrl"
+                [alt]="product.name"
+                (error)="onImageError($event)"
+              />
+              <span class="thumb-fallback" *ngIf="!product.imageUrl">{{ product.name?.charAt(0) || '?' }}</span>
+            </div>
+          </td>
           <td class="product-name">{{ product.name }}</td>
           <td class="mono">{{ product.sku || '—' }}</td>
           <td>{{ product.category?.name || '—' }}</td>
@@ -180,7 +208,7 @@
           </td>
         </tr>
         <tr *ngIf="filteredProducts.length === 0">
-          <td colspan="8" class="empty">No products found</td>
+          <td colspan="9" class="empty">No products found</td>
         </tr>
       </tbody>
     </table>

@@ -24,6 +24,8 @@ export interface Product {
   currentStock: number;
   minStockLevel: number;
   unit: ProductUnit;
+  /** Public http(s) image URL — optional */
+  imageUrl?: string | null;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
