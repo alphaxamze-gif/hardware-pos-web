@@ -254,6 +254,7 @@ export class PosComponent implements OnInit {
 
     this.submitting = true;
 
+    // Do not send invoiceNumber — backend assigns INV-YYYY-#####
     this.saleService
       .createSale({
         customerId: this.customerId || undefined,
@@ -271,11 +272,14 @@ export class PosComponent implements OnInit {
       .subscribe({
         next: (sale) => {
           this.submitting = false;
+          const inv = sale.invoiceNumber || '—';
           const dueMsg =
             this.paymentMethod === 'CREDIT' && this.due > 0
               ? ` — on account KES ${this.due.toLocaleString()}`
               : '';
-          this.success = `Sale completed — KES ${Number(sale.totalAmount || this.total).toLocaleString()}${dueMsg}`;
+          this.success = `Sale ${inv} completed — KES ${Number(
+            sale.totalAmount || this.total
+          ).toLocaleString()}${dueMsg}`;
           this.clearCart();
           this.paymentMethod = 'CASH';
           this.customerId = '';
