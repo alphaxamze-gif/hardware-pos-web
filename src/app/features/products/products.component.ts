@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-products',
@@ -19,6 +20,8 @@ export class ProductsComponent implements OnInit {
   error = '';
   success = '';
   searchTerm = '';
+  /** Default false = soft-deleted products leave the main list */
+  showInactive = false;
 
   showForm = false;
   saving = false;
@@ -40,11 +43,21 @@ export class ProductsComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private authService: AuthService
   ) {}
+
+  get canManageInactive(): boolean {
+    const role = this.authService.getUser()?.role;
+    return role === 'ADMIN' || role === 'MANAGER';
+  }
 
   get activeCategories() {
     return this.categories.filter((c) => c.isActive !== false);
+  }
+
+  get inactiveCount(): number {
+    return this.products.filter((p) => p.isActive === false).length;
   }
 
   ngOnInit() {
@@ -58,9 +71,8 @@ export class ProductsComponent implements OnInit {
     this.productService.getProducts().subscribe({
       next: (data) => {
         this.products = data || [];
-        this.filteredProducts = this.products;
         this.loading = false;
-        this.onSearch();
+        this.applyFilters();
       },
       error: (err) => {
         this.error = err.error?.message || 'Failed to load products';
@@ -80,18 +92,33 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  onSearch() {
-    const term = this.searchTerm.toLowerCase().trim();
-    if (!term) {
-      this.filteredProducts = this.products;
-      return;
+  applyFilters() {
+    let list = this.products;
+
+    // Soft-deleted leave the main list unless ADMIN/MANAGER toggles them on
+    if (!this.showInactive) {
+      list = list.filter((p) => p.isActive !== false);
     }
-    this.filteredProducts = this.products.filter(
-      (p) =>
-        p.name?.toLowerCase().includes(term) ||
-        p.sku?.toLowerCase().includes(term) ||
-        p.category?.name?.toLowerCase().includes(term)
-    );
+
+    const term = this.searchTerm.toLowerCase().trim();
+    if (term) {
+      list = list.filter(
+        (p) =>
+          p.name?.toLowerCase().includes(term) ||
+          p.sku?.toLowerCase().includes(term) ||
+          p.category?.name?.toLowerCase().includes(term)
+      );
+    }
+
+    this.filteredProducts = list;
+  }
+
+  onSearch() {
+    this.applyFilters();
+  }
+
+  onShowInactiveChange() {
+    this.applyFilters();
   }
 
   isLowStock(product: any): boolean {
@@ -215,7 +242,7 @@ export class ProductsComponent implements OnInit {
   remove(product: any) {
     if (
       !confirm(
-        `Deactivate "${product.name}"? It will stay in history but cannot be sold.`
+        `Remove "${product.name}" from the catalogue? It will leave this list and cannot be sold. History (sales/purchases) is kept.`
       )
     ) {
       return;
@@ -223,11 +250,11 @@ export class ProductsComponent implements OnInit {
     this.error = '';
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
-        this.success = 'Product deactivated (not permanently deleted)';
+        this.success = 'Product removed from catalogue';
         this.loadProducts();
       },
       error: (err) => {
-        this.error = err.error?.message || 'Deactivate failed';
+        this.error = err.error?.message || 'Remove failed';
       },
     });
   }
@@ -236,11 +263,11 @@ export class ProductsComponent implements OnInit {
     this.error = '';
     this.productService.updateProduct(product.id, { isActive: true }).subscribe({
       next: () => {
-        this.success = 'Product reactivated';
+        this.success = 'Product restored to catalogue';
         this.loadProducts();
       },
       error: (err) => {
-        this.error = err.error?.message || 'Reactivate failed';
+        this.error = err.error?.message || 'Restore failed';
       },
     });
   }

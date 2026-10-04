@@ -43,6 +43,14 @@
         (input)="onSearch()"
       />
     </div>
+    <label class="show-inactive" *ngIf="canManageInactive && inactiveCount > 0">
+      <input
+        type="checkbox"
+        [(ngModel)]="showInactive"
+        (ngModelChange)="onShowInactiveChange()"
+      />
+      Show removed ({{ inactiveCount }})
+    </label>
   </div>
 
   <div *ngIf="loading" class="state">Loading categories…</div>
@@ -63,11 +71,17 @@
           <td>{{ category.description || '—' }}</td>
           <td>
             <span class="status" [class.active]="category.isActive !== false" [class.inactive]="category.isActive === false">
-              {{ category.isActive === false ? 'Inactive' : 'Active' }}
+              {{ category.isActive === false ? 'Removed' : 'Active' }}
             </span>
           </td>
           <td class="actions">
-            <button type="button" class="icon-btn" title="Edit" (click)="openEdit(category)">
+            <button
+              type="button"
+              class="icon-btn"
+              title="Edit"
+              *ngIf="category.isActive !== false"
+              (click)="openEdit(category)"
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 20h9"/>
                 <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -76,8 +90,8 @@
             <button
               type="button"
               class="icon-btn"
-              title="Reactivate"
-              *ngIf="category.isActive === false"
+              title="Restore"
+              *ngIf="category.isActive === false && canManageInactive"
               (click)="reactivate(category)"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -88,7 +102,7 @@
             <button
               type="button"
               class="icon-btn danger"
-              title="Deactivate"
+              title="Remove"
               *ngIf="category.isActive !== false"
               (click)="remove(category)"
             >

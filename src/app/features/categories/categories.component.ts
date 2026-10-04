@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CategoryService } from '../../core/services/category.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-categories',
@@ -17,12 +18,25 @@ export class CategoriesComponent implements OnInit {
   error = '';
   success = '';
   searchTerm = '';
+  showInactive = false;
   showForm = false;
   saving = false;
   editingId: string | null = null;
   form = { name: '', description: '' };
 
-  constructor(private categoryService: CategoryService) {}
+  constructor(
+    private categoryService: CategoryService,
+    private authService: AuthService
+  ) {}
+
+  get canManageInactive(): boolean {
+    const role = this.authService.getUser()?.role;
+    return role === 'ADMIN' || role === 'MANAGER';
+  }
+
+  get inactiveCount(): number {
+    return this.categories.filter((c) => c.isActive === false).length;
+  }
 
   ngOnInit() {
     this.loadCategories();
@@ -34,9 +48,8 @@ export class CategoriesComponent implements OnInit {
     this.categoryService.getCategories().subscribe({
       next: (data) => {
         this.categories = data || [];
-        this.filteredCategories = this.categories;
         this.loading = false;
-        this.onSearch();
+        this.applyFilters();
       },
       error: (err) => {
         this.error = err.error?.message || 'Failed to load categories';
@@ -45,17 +58,28 @@ export class CategoriesComponent implements OnInit {
     });
   }
 
-  onSearch() {
-    const term = this.searchTerm.toLowerCase().trim();
-    if (!term) {
-      this.filteredCategories = this.categories;
-      return;
+  applyFilters() {
+    let list = this.categories;
+    if (!this.showInactive) {
+      list = list.filter((c) => c.isActive !== false);
     }
-    this.filteredCategories = this.categories.filter(
-      (c) =>
-        c.name?.toLowerCase().includes(term) ||
-        c.description?.toLowerCase().includes(term)
-    );
+    const term = this.searchTerm.toLowerCase().trim();
+    if (term) {
+      list = list.filter(
+        (c) =>
+          c.name?.toLowerCase().includes(term) ||
+          c.description?.toLowerCase().includes(term)
+      );
+    }
+    this.filteredCategories = list;
+  }
+
+  onSearch() {
+    this.applyFilters();
+  }
+
+  onShowInactiveChange() {
+    this.applyFilters();
   }
 
   openCreate() {
@@ -118,7 +142,7 @@ export class CategoriesComponent implements OnInit {
   remove(category: any) {
     if (
       !confirm(
-        `Deactivate category "${category.name}"? Products stay linked; history is kept.`
+        `Remove category "${category.name}" from the list? Linked products keep history.`
       )
     ) {
       return;
@@ -126,11 +150,11 @@ export class CategoriesComponent implements OnInit {
     this.error = '';
     this.categoryService.deleteCategory(category.id).subscribe({
       next: () => {
-        this.success = 'Category deactivated (not permanently deleted)';
+        this.success = 'Category removed from list';
         this.loadCategories();
       },
       error: (err) => {
-        this.error = err.error?.message || 'Deactivate failed';
+        this.error = err.error?.message || 'Remove failed';
       },
     });
   }
@@ -141,11 +165,11 @@ export class CategoriesComponent implements OnInit {
       .updateCategory(category.id, { isActive: true } as any)
       .subscribe({
         next: () => {
-          this.success = 'Category reactivated';
+          this.success = 'Category restored';
           this.loadCategories();
         },
         error: (err) => {
-          this.error = err.error?.message || 'Reactivate failed';
+          this.error = err.error?.message || 'Restore failed';
         },
       });
   }

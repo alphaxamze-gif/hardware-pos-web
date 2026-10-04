@@ -62,7 +62,7 @@
       </label>
     </div>
     <p class="hint" *ngIf="editingId">
-      Stock is system-managed via Restock. Trash deactivates the product (history kept).
+      Stock is system-managed via Restock. Remove hides the product from this list; sales history is kept.
     </p>
     <div class="form-actions">
       <button type="button" class="btn-primary" (click)="save()" [disabled]="saving">
@@ -87,6 +87,14 @@
         (input)="onSearch()"
       />
     </div>
+    <label class="show-inactive" *ngIf="canManageInactive && inactiveCount > 0">
+      <input
+        type="checkbox"
+        [(ngModel)]="showInactive"
+        (ngModelChange)="onShowInactiveChange()"
+      />
+      Show removed ({{ inactiveCount }})
+    </label>
   </div>
 
   <div *ngIf="loading" class="state">Loading products...</div>
@@ -122,7 +130,7 @@
           <td>{{ product.unit }}</td>
           <td class="price">KES {{ product.sellingPrice | number:'1.0-0' }}</td>
           <td>
-            <span class="status inactive" *ngIf="product.isActive === false">Inactive</span>
+            <span class="status inactive" *ngIf="product.isActive === false">Removed</span>
             <span
               class="status"
               *ngIf="product.isActive !== false"
@@ -137,6 +145,7 @@
               type="button"
               class="icon-btn"
               title="Edit"
+              *ngIf="product.isActive !== false"
               (click)="openEdit(product)"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -147,8 +156,8 @@
             <button
               type="button"
               class="icon-btn"
-              title="Reactivate"
-              *ngIf="product.isActive === false"
+              title="Restore"
+              *ngIf="product.isActive === false && canManageInactive"
               (click)="reactivate(product)"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -159,7 +168,7 @@
             <button
               type="button"
               class="icon-btn danger"
-              title="Deactivate"
+              title="Remove"
               *ngIf="product.isActive !== false"
               (click)="remove(product)"
             >
