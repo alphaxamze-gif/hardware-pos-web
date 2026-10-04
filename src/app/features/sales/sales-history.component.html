@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h1>Sales history</h1>
-      <p class="subtitle">Completed sales (void/reversal not available yet)</p>
+      <p class="subtitle">Completed sales — balance is unpaid on this invoice only</p>
     </div>
   </div>
 
@@ -12,7 +12,7 @@
     <input
       type="text"
       class="search"
-      placeholder="Search invoice, customer, method…"
+      placeholder="Search invoice, customer, method, product…"
       [(ngModel)]="search"
       (input)="applySearch()"
     />
@@ -25,24 +25,81 @@
       <thead>
         <tr>
           <th>Date</th>
+          <th>Invoice</th>
           <th>Customer</th>
           <th>Method</th>
           <th>Items</th>
           <th>Total</th>
           <th>Paid</th>
+          <th>Balance</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let s of filtered">
-          <td>{{ s.saleDate || s.createdAt | date:'medium' }}</td>
-          <td>{{ s.customer?.name || 'Walk-in' }}</td>
-          <td>{{ s.paymentMethod }}</td>
-          <td>{{ s.items?.length || 0 }}</td>
-          <td class="num">KES {{ s.totalAmount | number:'1.0-0' }}</td>
-          <td class="num">KES {{ s.amountPaid | number:'1.0-0' }}</td>
-        </tr>
+        <ng-container *ngFor="let s of filtered">
+          <tr
+            class="sale-row"
+            [class.has-balance]="!isPaid(s)"
+            (click)="toggleExpand(s)"
+          >
+            <td>{{ s.saleDate || s.createdAt | date:'medium' }}</td>
+            <td class="mono">{{ s.invoiceNumber || '—' }}</td>
+            <td>{{ s.customer?.name || 'Walk-in' }}</td>
+            <td>
+              <span
+                class="method"
+                [class.cash]="s.paymentMethod === 'CASH'"
+                [class.credit]="s.paymentMethod === 'CREDIT'"
+                [class.mpesa]="s.paymentMethod === 'MPESA'"
+                [class.bank]="s.paymentMethod === 'BANK'"
+              >
+                {{ methodLabel(s.paymentMethod) }}
+              </span>
+            </td>
+            <td class="items-cell">
+              {{ itemsSummary(s) }}
+              <span class="expand-hint" *ngIf="(s.items?.length || 0) > 0">
+                {{ isExpanded(s) ? '▾' : '▸' }}
+              </span>
+            </td>
+            <td class="num">KES {{ s.totalAmount | number:'1.0-0' }}</td>
+            <td class="num">KES {{ s.amountPaid | number:'1.0-0' }}</td>
+            <td class="num balance" [class.paid]="isPaid(s)" [class.owing]="!isPaid(s)">
+              <ng-container *ngIf="isPaid(s)">Paid</ng-container>
+              <ng-container *ngIf="!isPaid(s)">
+                KES {{ balance(s) | number:'1.0-0' }}
+              </ng-container>
+            </td>
+          </tr>
+          <tr class="detail-row" *ngIf="isExpanded(s)">
+            <td colspan="8">
+              <div class="detail-panel">
+                <table class="lines">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Qty</th>
+                      <th>Unit price</th>
+                      <th>Line total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let line of s.items">
+                      <td>{{ line.product?.name || '—' }}</td>
+                      <td class="num">
+                        {{ line.quantity }} {{ line.product?.unit || '' }}
+                      </td>
+                      <td class="num">KES {{ line.unitPrice | number:'1.0-0' }}</td>
+                      <td class="num">KES {{ line.totalPrice | number:'1.0-0' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p class="detail-meta" *ngIf="s.notes">Notes: {{ s.notes }}</p>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
         <tr *ngIf="filtered.length === 0">
-          <td colspan="6" class="empty">No sales found</td>
+          <td colspan="8" class="empty">No sales found</td>
         </tr>
       </tbody>
     </table>

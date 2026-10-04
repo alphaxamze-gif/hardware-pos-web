@@ -16,6 +16,7 @@ export class SalesHistoryComponent implements OnInit {
   loading = true;
   error = '';
   search = '';
+  expandedId: string | null = null;
 
   constructor(private saleService: SaleService) {}
 
@@ -49,7 +50,55 @@ export class SalesHistoryComponent implements OnInit {
       (s) =>
         s.invoiceNumber?.toLowerCase().includes(t) ||
         s.customer?.name?.toLowerCase().includes(t) ||
-        s.paymentMethod?.toLowerCase().includes(t)
+        s.paymentMethod?.toLowerCase().includes(t) ||
+        s.items?.some((i: any) =>
+          i.product?.name?.toLowerCase().includes(t)
+        )
     );
+  }
+
+  /** Unpaid portion of this sale only (not full customer account due). */
+  balance(sale: any): number {
+    const total = Number(sale.totalAmount) || 0;
+    const paid = Number(sale.amountPaid) || 0;
+    return Math.max(0, total - paid);
+  }
+
+  isPaid(sale: any): boolean {
+    return this.balance(sale) === 0;
+  }
+
+  methodLabel(method: string): string {
+    switch (method) {
+      case 'CASH':
+        return 'Cash';
+      case 'CREDIT':
+        return 'Credit';
+      case 'MPESA':
+        return 'M-Pesa';
+      case 'BANK':
+        return 'Bank';
+      default:
+        return method || '—';
+    }
+  }
+
+  itemsSummary(sale: any): string {
+    const n = sale.items?.length || 0;
+    if (n === 0) return '0 items';
+    if (n === 1) {
+      const line = sale.items[0];
+      const name = line.product?.name || 'Item';
+      return `${name} × ${line.quantity}`;
+    }
+    return `${n} items`;
+  }
+
+  toggleExpand(sale: any) {
+    this.expandedId = this.expandedId === sale.id ? null : sale.id;
+  }
+
+  isExpanded(sale: any): boolean {
+    return this.expandedId === sale.id;
   }
 }
