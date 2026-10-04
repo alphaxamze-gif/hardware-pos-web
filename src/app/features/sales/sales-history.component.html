@@ -1,14 +1,14 @@
 <div class="history-page">
-  <div class="page-header">
+  <div class="page-header no-print">
     <div>
       <h1>Sales history</h1>
       <p class="subtitle">Completed sales — balance is unpaid on this invoice only</p>
     </div>
   </div>
 
-  <div class="alert error" *ngIf="error">{{ error }}</div>
+  <div class="alert error no-print" *ngIf="error">{{ error }}</div>
 
-  <div class="toolbar">
+  <div class="toolbar no-print">
     <input
       type="text"
       class="search"
@@ -18,9 +18,9 @@
     />
   </div>
 
-  <div *ngIf="loading" class="state">Loading sales…</div>
+  <div *ngIf="loading" class="state no-print">Loading sales…</div>
 
-  <div class="table-card" *ngIf="!loading">
+  <div class="table-card no-print" *ngIf="!loading">
     <table>
       <thead>
         <tr>
@@ -32,6 +32,7 @@
           <th>Total</th>
           <th>Paid</th>
           <th>Balance</th>
+          <th class="th-actions">Doc</th>
         </tr>
       </thead>
       <tbody>
@@ -69,9 +70,19 @@
                 KES {{ balance(s) | number:'1.0-0' }}
               </ng-container>
             </td>
+            <td class="actions" (click)="$event.stopPropagation()">
+              <button
+                type="button"
+                class="btn-doc"
+                (click)="openInvoice(s, $event)"
+                title="View / print"
+              >
+                {{ isPaid(s) ? 'Receipt' : 'Invoice' }}
+              </button>
+            </td>
           </tr>
           <tr class="detail-row" *ngIf="isExpanded(s)">
-            <td colspan="8">
+            <td colspan="9">
               <div class="detail-panel">
                 <table class="lines">
                   <thead>
@@ -99,9 +110,96 @@
           </tr>
         </ng-container>
         <tr *ngIf="filtered.length === 0">
-          <td colspan="8" class="empty">No sales found</td>
+          <td colspan="9" class="empty">No sales found</td>
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Receipt / Invoice modal -->
+  <div class="modal-backdrop no-print" *ngIf="selectedSale" (click)="closeInvoice()"></div>
+  <div class="invoice-modal" *ngIf="selectedSale" role="dialog" aria-modal="true">
+    <div class="invoice-toolbar no-print">
+      <button type="button" class="btn-secondary" (click)="closeInvoice()">Close</button>
+      <button type="button" class="btn-primary" (click)="printInvoice()">Print</button>
+    </div>
+
+    <div class="invoice-sheet" id="invoice-print-area">
+      <header class="inv-header">
+        <div>
+          <h1>{{ shopName }}</h1>
+          <p class="tagline">{{ shopTagline }}</p>
+        </div>
+        <div class="inv-type">
+          <span class="doc-label">{{ documentTitle(selectedSale) }}</span>
+          <span class="inv-no mono">{{ selectedSale.invoiceNumber || '—' }}</span>
+        </div>
+      </header>
+
+      <div class="inv-meta">
+        <div>
+          <span class="label">Date</span>
+          <span>{{ selectedSale.saleDate || selectedSale.createdAt | date:'medium' }}</span>
+        </div>
+        <div>
+          <span class="label">Customer</span>
+          <span>{{ selectedSale.customer?.name || 'Walk-in' }}</span>
+        </div>
+        <div *ngIf="selectedSale.customer?.phone">
+          <span class="label">Phone</span>
+          <span>{{ selectedSale.customer.phone }}</span>
+        </div>
+        <div>
+          <span class="label">Payment</span>
+          <span>{{ methodLabel(selectedSale.paymentMethod) }}</span>
+        </div>
+      </div>
+
+      <table class="inv-lines">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let line of selectedSale.items">
+            <td>{{ line.product?.name || '—' }}</td>
+            <td class="num">{{ line.quantity }} {{ line.product?.unit || '' }}</td>
+            <td class="num">{{ line.unitPrice | number:'1.0-0' }}</td>
+            <td class="num">{{ line.totalPrice | number:'1.0-0' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="inv-totals">
+        <div class="row" *ngIf="selectedSale.discount">
+          <span>Discount</span>
+          <span class="num">KES {{ selectedSale.discount | number:'1.0-0' }}</span>
+        </div>
+        <div class="row strong">
+          <span>Total</span>
+          <span class="num">KES {{ selectedSale.totalAmount | number:'1.0-0' }}</span>
+        </div>
+        <div class="row">
+          <span>Amount paid</span>
+          <span class="num">KES {{ selectedSale.amountPaid | number:'1.0-0' }}</span>
+        </div>
+        <div class="row" [class.owing]="!isPaid(selectedSale)">
+          <span>Balance</span>
+          <span class="num">
+            <ng-container *ngIf="isPaid(selectedSale)">KES 0 (Paid)</ng-container>
+            <ng-container *ngIf="!isPaid(selectedSale)">
+              KES {{ balance(selectedSale) | number:'1.0-0' }}
+            </ng-container>
+          </span>
+        </div>
+      </div>
+
+      <p class="inv-notes" *ngIf="selectedSale.notes">Notes: {{ selectedSale.notes }}</p>
+      <p class="inv-footer">Thank you for your business.</p>
+    </div>
   </div>
 </div>

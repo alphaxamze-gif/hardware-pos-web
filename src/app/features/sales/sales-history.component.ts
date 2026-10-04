@@ -17,6 +17,12 @@ export class SalesHistoryComponent implements OnInit {
   error = '';
   search = '';
   expandedId: string | null = null;
+  /** Sale open in receipt/invoice modal */
+  selectedSale: any | null = null;
+
+  /** Shown on printed document — edit later when shop settings exist */
+  shopName = 'Hardware PRO';
+  shopTagline = 'Construction & hardware supplies';
 
   constructor(private saleService: SaleService) {}
 
@@ -57,7 +63,6 @@ export class SalesHistoryComponent implements OnInit {
     );
   }
 
-  /** Unpaid portion of this sale only (not full customer account due). */
   balance(sale: any): number {
     const total = Number(sale.totalAmount) || 0;
     const paid = Number(sale.amountPaid) || 0;
@@ -66,6 +71,10 @@ export class SalesHistoryComponent implements OnInit {
 
   isPaid(sale: any): boolean {
     return this.balance(sale) === 0;
+  }
+
+  documentTitle(sale: any): string {
+    return this.isPaid(sale) ? 'Receipt' : 'Invoice';
   }
 
   methodLabel(method: string): string {
@@ -100,5 +109,18 @@ export class SalesHistoryComponent implements OnInit {
 
   isExpanded(sale: any): boolean {
     return this.expandedId === sale.id;
+  }
+
+  openInvoice(sale: any, event: Event) {
+    event.stopPropagation();
+    this.selectedSale = sale;
+  }
+
+  closeInvoice() {
+    this.selectedSale = null;
+  }
+
+  printInvoice() {
+    window.print();
   }
 }
