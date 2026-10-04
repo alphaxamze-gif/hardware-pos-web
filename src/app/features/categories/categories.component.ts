@@ -90,6 +90,7 @@ export class CategoriesComponent implements OnInit {
     this.saving = true;
     this.error = '';
 
+    const wasEditing = !!this.editingId;
     const payload = {
       name: this.form.name.trim(),
       description: this.form.description.trim() || undefined,
@@ -104,7 +105,7 @@ export class CategoriesComponent implements OnInit {
         this.saving = false;
         this.showForm = false;
         this.editingId = null;
-        this.success = this.editingId ? 'Category updated' : 'Category created';
+        this.success = wasEditing ? 'Category updated' : 'Category created';
         this.loadCategories();
       },
       error: (err) => {
@@ -115,18 +116,37 @@ export class CategoriesComponent implements OnInit {
   }
 
   remove(category: any) {
-    if (!confirm(`Delete category "${category.name}"?`)) return;
+    if (
+      !confirm(
+        `Deactivate category "${category.name}"? Products stay linked; history is kept.`
+      )
+    ) {
+      return;
+    }
     this.error = '';
     this.categoryService.deleteCategory(category.id).subscribe({
       next: () => {
-        this.success = 'Category deleted';
+        this.success = 'Category deactivated (not permanently deleted)';
         this.loadCategories();
       },
       error: (err) => {
-        this.error =
-          err.error?.message ||
-          'Cannot delete — products may still use this category';
+        this.error = err.error?.message || 'Deactivate failed';
       },
     });
+  }
+
+  reactivate(category: any) {
+    this.error = '';
+    this.categoryService
+      .updateCategory(category.id, { isActive: true } as any)
+      .subscribe({
+        next: () => {
+          this.success = 'Category reactivated';
+          this.loadCategories();
+        },
+        error: (err) => {
+          this.error = err.error?.message || 'Reactivate failed';
+        },
+      });
   }
 }

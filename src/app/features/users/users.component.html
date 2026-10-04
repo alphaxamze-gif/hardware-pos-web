@@ -12,6 +12,9 @@
 
   <div class="card form-card" *ngIf="showForm">
     <h2>{{ editingId ? 'Edit user' : 'New user' }}</h2>
+    <p class="note" *ngIf="editingId">
+      Email cannot change. Leave password blank to keep the current password.
+    </p>
 
     <div class="form-grid">
       <label>
@@ -48,7 +51,7 @@
       </label>
       <label class="checkbox" *ngIf="editingId">
         <input type="checkbox" [(ngModel)]="form.isActive" name="isActive" />
-        Active
+        Active account
       </label>
     </div>
 
@@ -105,6 +108,10 @@
         </tbody>
       </table>
       <p class="empty" *ngIf="users.length === 0">No users found.</p>
+      <p class="note">
+        Users are never hard-deleted. Deactivate stops login; Activate restores access.
+        The last active ADMIN cannot be removed.
+      </p>
     </div>
   </div>
 </div>

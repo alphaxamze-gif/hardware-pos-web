@@ -43,6 +43,10 @@ export class ProductsComponent implements OnInit {
     private categoryService: CategoryService
   ) {}
 
+  get activeCategories() {
+    return this.categories.filter((c) => c.isActive !== false);
+  }
+
   ngOnInit() {
     this.loadProducts();
     this.loadCategories();
@@ -103,7 +107,7 @@ export class ProductsComponent implements OnInit {
       name: '',
       sku: '',
       description: '',
-      categoryId: this.categories[0]?.id || '',
+      categoryId: this.activeCategories[0]?.id || '',
       costPrice: 0,
       sellingPrice: 0,
       currentStock: 0,
@@ -209,17 +213,34 @@ export class ProductsComponent implements OnInit {
   }
 
   remove(product: any) {
-    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+    if (
+      !confirm(
+        `Deactivate "${product.name}"? It will stay in history but cannot be sold.`
+      )
+    ) {
+      return;
+    }
     this.error = '';
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
-        this.success = 'Product deleted';
+        this.success = 'Product deactivated (not permanently deleted)';
         this.loadProducts();
       },
       error: (err) => {
-        this.error =
-          err.error?.message ||
-          'Delete failed (product may already be used in sales)';
+        this.error = err.error?.message || 'Deactivate failed';
+      },
+    });
+  }
+
+  reactivate(product: any) {
+    this.error = '';
+    this.productService.updateProduct(product.id, { isActive: true }).subscribe({
+      next: () => {
+        this.success = 'Product reactivated';
+        this.loadProducts();
+      },
+      error: (err) => {
+        this.error = err.error?.message || 'Reactivate failed';
       },
     });
   }

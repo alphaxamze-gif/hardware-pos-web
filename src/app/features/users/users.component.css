@@ -9,17 +9,19 @@
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .page-header h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: clamp(22px, 4vw, 26px);
+  font-weight: 700;
   color: var(--text, #0f172a);
 }
 
 .subtitle {
   margin: 4px 0 0;
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted, #4b6b82);
   font-size: 0.95rem;
 }
 
@@ -39,11 +41,12 @@
 
 .btn-secondary {
   background: transparent;
-  border: 1px solid var(--border, #e2e8f0);
+  border: 1px solid var(--border, #c5dff0);
   border-radius: 8px;
   padding: 10px 16px;
   cursor: pointer;
   color: var(--text, #0f172a);
+  font-weight: 600;
 }
 
 .btn-link {
@@ -52,8 +55,9 @@
   color: #1e3a5f;
   cursor: pointer;
   font-weight: 600;
-  margin-right: 8px;
+  margin-right: 10px;
   padding: 0;
+  font-size: 14px;
 }
 
 .btn-link.danger {
@@ -80,12 +84,17 @@
 }
 
 .card {
-  background: var(--surface, #fff);
-  border: 1px solid var(--border, #e2e8f0);
+  background: var(--surface, #f0f9ff);
+  border: 1px solid var(--border, #c5dff0);
   border-radius: 10px;
   padding: 16px 18px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.form-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text, #0f172a);
 }
 
 .form-grid {
@@ -101,16 +110,21 @@
   gap: 6px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted, #4b6b82);
 }
 
 .form-grid input,
 .form-grid select {
   padding: 10px 12px;
-  border: 1px solid var(--border, #e2e8f0);
+  border: 1px solid var(--border, #c5dff0);
   border-radius: 8px;
   font-size: 0.95rem;
   color: var(--text, #0f172a);
+  background: #f8fbfe;
+}
+
+.form-grid input:disabled {
+  opacity: 0.7;
 }
 
 .checkbox {
@@ -140,16 +154,18 @@ th,
 td {
   text-align: left;
   padding: 12px 10px;
-  border-bottom: 1px solid var(--border, #e2e8f0);
+  border-bottom: 1px solid var(--border, #c5dff0);
   font-size: 0.95rem;
+  color: var(--text, #0f172a);
 }
 
 th {
-  color: var(--text-muted, #64748b);
+  color: #3d5a73;
   font-weight: 600;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  background: #dbeaf5;
 }
 
 .badge {
@@ -177,12 +193,93 @@ th {
 
 .loading,
 .empty {
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted, #4b6b82);
   padding: 12px 0;
+}
+
+.note {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  color: var(--text-muted, #4b6b82);
+}
+
+:host-context(body.dark-theme) .page-header h1,
+:host-context(body.dark-theme) .form-card h2,
+:host-context(body.dark-theme) td {
+  color: #e2e8f0;
+}
+
+:host-context(body.dark-theme) .subtitle,
+:host-context(body.dark-theme) .form-grid label,
+:host-context(body.dark-theme) .loading,
+:host-context(body.dark-theme) .empty,
+:host-context(body.dark-theme) .note,
+:host-context(body.dark-theme) th {
+  color: #7dd3fc;
+}
+
+:host-context(body.dark-theme) .card {
+  background: #132337;
+  border-color: #1e3a5f;
+}
+
+:host-context(body.dark-theme) .form-grid input,
+:host-context(body.dark-theme) .form-grid select {
+  background: #0f1c2e;
+  border-color: #1e3a5f;
+  color: #e2e8f0;
+}
+
+:host-context(body.dark-theme) th {
+  background: #0f1c2e;
+}
+
+:host-context(body.dark-theme) .btn-secondary {
+  border-color: #334155;
+  color: #bae6fd;
+}
+
+:host-context(body.dark-theme) .btn-link {
+  color: #bae6fd;
+}
+
+:host-context(body.dark-theme) .btn-link.danger {
+  color: #f87171;
+}
+
+:host-context(body.dark-theme) .badge.role {
+  background: rgba(125, 211, 252, 0.15);
+  color: #bae6fd;
+}
+
+:host-context(body.dark-theme) .badge.active {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+:host-context(body.dark-theme) .badge.inactive {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+:host-context(body.dark-theme) .alert.error {
+  background: rgba(220, 38, 38, 0.15);
+  color: #fca5a5;
+  border-color: rgba(220, 38, 38, 0.35);
+}
+
+:host-context(body.dark-theme) .alert.success {
+  background: rgba(22, 163, 74, 0.15);
+  color: #86efac;
+  border-color: rgba(22, 163, 74, 0.35);
 }
 
 @media (max-width: 640px) {
   .page-header {
     flex-direction: column;
+  }
+
+  .btn-primary {
+    width: 100%;
   }
 }
