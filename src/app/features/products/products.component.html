@@ -20,8 +20,13 @@
         <input type="text" [(ngModel)]="form.name" name="name" />
       </label>
       <label>
-        SKU
-        <input type="text" [(ngModel)]="form.sku" name="sku" />
+        Code (optional)
+        <input
+          type="text"
+          [(ngModel)]="form.sku"
+          name="sku"
+          placeholder="Leave blank to auto-generate"
+        />
       </label>
       <label>
         Category *
@@ -75,7 +80,10 @@
       </div>
     </div>
     <p class="hint">
-      Image is optional. Paste a public photo link (http/https). File upload comes in a later phase.
+      Code is optional. Leave blank and the system builds one from the product name (e.g. Bamburi Cement 50kg → BAM-CEM-50KG).
+    </p>
+    <p class="hint">
+      Image is optional. Paste a public photo link (http/https).
     </p>
     <p class="hint" *ngIf="editingId">
       Stock is system-managed via Restock. Remove hides the product from this list; sales history is kept.
@@ -98,7 +106,7 @@
       </svg>
       <input
         type="text"
-        placeholder="Search by name, SKU or category..."
+        placeholder="Search by name, code or category..."
         [(ngModel)]="searchTerm"
         (input)="onSearch()"
       />
@@ -121,7 +129,7 @@
         <tr>
           <th class="th-img"></th>
           <th>Product</th>
-          <th>SKU</th>
+          <th>Code</th>
           <th>Category</th>
           <th>Stock</th>
           <th>Unit</th>
@@ -202,7 +210,7 @@
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1 2 2v2"/>
               </svg>
             </button>
           </td>
