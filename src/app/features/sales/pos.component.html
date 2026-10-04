@@ -16,34 +16,52 @@
       <div class="search-box">
         <input
           type="text"
-          placeholder="Search name, SKU, category…"
+          placeholder="Search name, code, category…"
           [(ngModel)]="search"
-          (input)="applySearch()"
+          (input)="onSearch()"
         />
       </div>
 
-      <div class="product-list">
+      <div class="category-chips" *ngIf="categoryNames.length > 0">
         <button
           type="button"
-          class="product-row"
+          class="chip"
+          [class.active]="selectedCategory === 'All'"
+          (click)="selectCategory('All')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="chip"
+          *ngFor="let cat of categoryNames"
+          [class.active]="selectedCategory === cat"
+          (click)="selectCategory(cat)"
+        >
+          {{ cat }}
+        </button>
+      </div>
+
+      <div class="product-grid">
+        <button
+          type="button"
+          class="product-card"
           *ngFor="let p of filteredProducts"
           (click)="addToCart(p)"
         >
-          <div class="thumb">
+          <div class="card-image">
             <img
               *ngIf="p.imageUrl"
               [src]="p.imageUrl"
               [alt]="p.name"
               (error)="onImageError($event)"
             />
-            <span class="thumb-fallback" *ngIf="!p.imageUrl">{{ p.name?.charAt(0) || '?' }}</span>
+            <span class="thumb-fallback" *ngIf="!p.imageUrl">{{ p.name.charAt(0) }}</span>
           </div>
-          <div class="p-body">
+          <div class="card-body">
             <div class="p-name">{{ p.name }}</div>
-            <div class="p-meta">
-              <span>{{ p.currentStock }} {{ p.unit }}</span>
-              <span class="p-price num">KES {{ p.sellingPrice | number:'1.0-0' }}</span>
-            </div>
+            <div class="p-stock">{{ p.currentStock }} {{ p.unit }}</div>
+            <div class="p-price num">KES {{ p.sellingPrice | number:'1.0-0' }}</div>
           </div>
         </button>
         <div class="empty" *ngIf="filteredProducts.length === 0">No products match</div>
@@ -66,7 +84,7 @@
                   [alt]="line.name"
                   (error)="onImageError($event)"
                 />
-                <span class="thumb-fallback" *ngIf="!line.imageUrl">{{ line.name?.charAt(0) || '?' }}</span>
+                <span class="thumb-fallback" *ngIf="!line.imageUrl">{{ line.name.charAt(0) }}</span>
               </div>
               <strong>{{ line.name }}</strong>
             </div>

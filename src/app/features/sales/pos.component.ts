@@ -26,6 +26,9 @@ export class PosComponent implements OnInit {
   products: any[] = [];
   customers: any[] = [];
   filteredProducts: any[] = [];
+  /** Unique category names from loaded products */
+  categoryNames: string[] = [];
+  selectedCategory = 'All';
   cart: CartLine[] = [];
 
   search = '';
@@ -64,7 +67,8 @@ export class PosComponent implements OnInit {
         this.products = (data || []).filter(
           (p: any) => p.isActive !== false && Number(p.currentStock) > 0
         );
-        this.applySearch();
+        this.buildCategories();
+        this.applyFilters();
         done();
       },
       error: (err) => {
@@ -85,6 +89,21 @@ export class PosComponent implements OnInit {
     });
   }
 
+  private buildCategories() {
+    const names = new Set<string>();
+    for (const p of this.products) {
+      const n = p.category?.name;
+      if (n) names.add(n);
+    }
+    this.categoryNames = Array.from(names).sort((a, b) => a.localeCompare(b));
+    if (
+      this.selectedCategory !== 'All' &&
+      !this.categoryNames.includes(this.selectedCategory)
+    ) {
+      this.selectedCategory = 'All';
+    }
+  }
+
   reloadCustomers() {
     this.customerService.getCustomers().subscribe({
       next: (data) => {
@@ -93,23 +112,45 @@ export class PosComponent implements OnInit {
     });
   }
 
-  applySearch() {
-    const t = this.search.toLowerCase().trim();
-    if (!t) {
-      this.filteredProducts = this.products;
-      return;
+  applyFilters() {
+    let list = this.products;
+
+    if (this.selectedCategory !== 'All') {
+      list = list.filter((p) => p.category?.name === this.selectedCategory);
     }
-    this.filteredProducts = this.products.filter(
-      (p) =>
-        p.name?.toLowerCase().includes(t) ||
-        p.sku?.toLowerCase().includes(t) ||
-        p.category?.name?.toLowerCase().includes(t)
-    );
+
+    const t = this.search.toLowerCase().trim();
+    if (t) {
+      list = list.filter(
+        (p) =>
+          p.name?.toLowerCase().includes(t) ||
+          p.sku?.toLowerCase().includes(t) ||
+          p.category?.name?.toLowerCase().includes(t)
+      );
+    }
+
+    this.filteredProducts = list;
+  }
+
+  selectCategory(name: string) {
+    this.selectedCategory = name;
+    this.applyFilters();
+  }
+
+  onSearch() {
+    this.applyFilters();
   }
 
   onImageError(event: Event) {
     const el = event.target as HTMLImageElement;
     el.style.display = 'none';
+    const parent = el.parentElement;
+    if (parent && !parent.querySelector('.thumb-fallback')) {
+      const span = document.createElement('span');
+      span.className = 'thumb-fallback';
+      span.textContent = '?';
+      parent.appendChild(span);
+    }
   }
 
   addToCart(product: any) {
@@ -254,7 +295,6 @@ export class PosComponent implements OnInit {
 
     this.submitting = true;
 
-    // Do not send invoiceNumber — backend assigns INV-YYYY-#####
     this.saleService
       .createSale({
         customerId: this.customerId || undefined,
