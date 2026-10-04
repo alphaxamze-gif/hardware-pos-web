@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Customer } from '../../core/models';
 import { CustomerService } from '../../core/services/customer.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-customers',
@@ -16,6 +17,7 @@ export class CustomersComponent implements OnInit {
   filteredCustomers: Customer[] = [];
 
   searchTerm = '';
+  showInactive = false;
   loading = false;
   saving = false;
   errorMessage = '';
@@ -32,7 +34,19 @@ export class CustomersComponent implements OnInit {
     creditLimit: 0,
   };
 
-  constructor(private customerService: CustomerService) {}
+  constructor(
+    private customerService: CustomerService,
+    private authService: AuthService
+  ) {}
+
+  get canManageInactive(): boolean {
+    const role = this.authService.getUser()?.role;
+    return role === 'ADMIN' || role === 'MANAGER';
+  }
+
+  get inactiveCount(): number {
+    return this.customers.filter((c) => c.isActive === false).length;
+  }
 
   ngOnInit(): void {
     this.loadCustomers();
@@ -45,9 +59,8 @@ export class CustomersComponent implements OnInit {
     this.customerService.getCustomers().subscribe({
       next: (customers) => {
         this.customers = customers || [];
-        this.filteredCustomers = this.customers;
         this.loading = false;
-        this.onSearch();
+        this.applyFilters();
       },
       error: (error) => {
         this.errorMessage =
@@ -57,17 +70,31 @@ export class CustomersComponent implements OnInit {
     });
   }
 
-  onSearch(): void {
-    const term = this.searchTerm.trim().toLowerCase();
-    if (!term) {
-      this.filteredCustomers = this.customers;
-      return;
+  applyFilters(): void {
+    let list = this.customers;
+
+    if (!this.showInactive) {
+      list = list.filter((c) => c.isActive !== false);
     }
-    this.filteredCustomers = this.customers.filter((customer) =>
-      [customer.name, customer.phone, customer.email]
-        .filter(Boolean)
-        .some((value) => value!.toLowerCase().includes(term))
-    );
+
+    const term = this.searchTerm.trim().toLowerCase();
+    if (term) {
+      list = list.filter((customer) =>
+        [customer.name, customer.phone, customer.email]
+          .filter(Boolean)
+          .some((value) => value!.toLowerCase().includes(term))
+      );
+    }
+
+    this.filteredCustomers = list;
+  }
+
+  onSearch(): void {
+    this.applyFilters();
+  }
+
+  onShowInactiveChange(): void {
+    this.applyFilters();
   }
 
   openCreateForm(): void {
@@ -109,7 +136,6 @@ export class CustomersComponent implements OnInit {
       return;
     }
 
-    // currentDue is system-owned — never sent
     const payload = {
       name: this.form.name.trim(),
       phone: this.form.phone.trim() || undefined,
@@ -121,6 +147,7 @@ export class CustomersComponent implements OnInit {
     this.saving = true;
     this.errorMessage = '';
 
+    const wasEditing = !!this.editingCustomer;
     const req$ = this.editingCustomer
       ? this.customerService.updateCustomer(this.editingCustomer.id, payload)
       : this.customerService.createCustomer(payload);
@@ -128,7 +155,7 @@ export class CustomersComponent implements OnInit {
     req$.subscribe({
       next: () => {
         this.saving = false;
-        this.successMessage = this.editingCustomer
+        this.successMessage = wasEditing
           ? 'Customer updated'
           : 'Customer created';
         this.closeForm();
@@ -143,20 +170,49 @@ export class CustomersComponent implements OnInit {
   }
 
   deleteCustomer(customer: Customer): void {
-    if (!window.confirm(`Delete customer "${customer.name}"?`)) return;
+    const due = Number(customer.currentDue) || 0;
+
+    let message = `Remove "${customer.name}" from the customer list?\n\nThey will leave this list and cannot be selected for new credit sales. History is kept.`;
+
+    if (due > 0) {
+      message =
+        `WARNING: ${customer.name} still owes KES ${due.toLocaleString()}.\n\n` +
+        `Removing them does NOT clear the debt. The balance remains until a payment is recorded.\n\n` +
+        `Continue and remove from the list?`;
+    }
+
+    if (!window.confirm(message)) return;
 
     this.errorMessage = '';
     this.customerService.deleteCustomer(customer.id).subscribe({
       next: () => {
-        this.successMessage = 'Customer deleted';
+        this.successMessage =
+          due > 0
+            ? `Customer removed. Outstanding due KES ${due.toLocaleString()} is still on record.`
+            : 'Customer removed from list';
         this.loadCustomers();
       },
       error: (error) => {
         this.errorMessage =
-          error?.error?.message ||
-          'Cannot delete — customer may have sales or dues.';
+          error?.error?.message || 'Could not remove customer.';
       },
     });
+  }
+
+  reactivate(customer: Customer): void {
+    this.errorMessage = '';
+    this.customerService
+      .updateCustomer(customer.id, { isActive: true } as any)
+      .subscribe({
+        next: () => {
+          this.successMessage = 'Customer restored to list';
+          this.loadCustomers();
+        },
+        error: (error) => {
+          this.errorMessage =
+            error?.error?.message || 'Could not restore customer.';
+        },
+      });
   }
 
   trackByCustomerId(_index: number, customer: Customer): string {
