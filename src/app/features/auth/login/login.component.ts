@@ -1,58 +1,101 @@
-import { Component } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule
-} from '@angular/forms';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+
+type Step = 'email' | 'password';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.css',
 })
-export class LoginComponent {
-  loginForm: FormGroup;
+export class LoginComponent implements OnInit {
+  step: Step = 'email';
+  email = '';
+  password = '';
+  error = '';
   loading = false;
-  errorMessage = '';
+  shake = false;
 
   constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
+    private auth: AuthService,
     private router: Router
-  ) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+  ) {}
+
+  ngOnInit(): void {
+    if (this.auth.isLoggedIn()) {
+      this.router.navigateByUrl('/dashboard');
+    }
+  }
+
+  get label(): string {
+    return this.step === 'email' ? 'Email' : 'Password';
+  }
+
+  private triggerShake(): void {
+    this.shake = false;
+    requestAnimationFrame(() => {
+      this.shake = true;
+      setTimeout(() => (this.shake = false), 400);
     });
   }
 
-  onSubmit() {
-    if (this.loginForm.invalid) {
+  onNext(): void {
+    this.error = '';
+    if (this.step === 'email') {
+      const v = this.email.trim();
+      if (!v || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+        this.triggerShake();
+        this.error = 'Enter a valid email';
+        return;
+      }
+      this.step = 'password';
       return;
     }
+    this.submit();
+  }
 
+  onBack(): void {
+    if (this.loading) return;
+    this.error = '';
+    if (this.step === 'password') {
+      this.password = '';
+      this.step = 'email';
+    }
+  }
+
+  onEnter(e: Event): void {
+    e.preventDefault();
+    this.onNext();
+  }
+
+  submit(): void {
+    if (!this.password.trim()) {
+      this.triggerShake();
+      this.error = 'Enter your password';
+      return;
+    }
     this.loading = true;
-    this.errorMessage = '';
-
-    const email = this.loginForm.value.email;
-    const password = this.loginForm.value.password;
-
-    this.authService.login(email, password).subscribe({
+    this.error = '';
+    this.auth.login(this.email.trim(), this.password).subscribe({
       next: () => {
         this.loading = false;
-        this.router.navigateByUrl('/dashboard');
+        const role = this.auth.getUser()?.role;
+        if (role === 'CASHIER') {
+          this.router.navigateByUrl('/sales');
+        } else {
+          this.router.navigateByUrl('/dashboard');
+        }
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err?.error?.message || 'Login failed';
-        console.error(err);
-      }
+        this.error = err?.error?.message || 'Login failed. Please try again.';
+        this.triggerShake();
+      },
     });
   }
 }
